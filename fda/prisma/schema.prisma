@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ENUMS for defining roles and statuses
+enum Role {
+  USER
+  RESTAURANT_OWNER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING     // Order placed, waiting for restaurant confirmation
+  CONFIRMED   // Restaurant has accepted the order
+  PREPARING   // Food is being prepared
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+// User model for customers and restaurant owners
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String
+  password  String // Will be a hashed password
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  addresses   Address[]
+  orders      Order[]
+  restaurant  Restaurant? // A user can own one restaurant
+}
+
+// Restaurant model
+model Restaurant {
+  id            String    @id @default(cuid())
+  name          String
+  description   String
+  address       String    // Physical address of the restaurant
+  imageUrl      String?   // A banner/profile image for the restaurant
+  isOpen        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  ownerId       String    @unique
+  owner         User      @relation(fields: [ownerId], references: [id])
+
+  menuItems     FoodItem[]
+  reels         Reel[]
+  orders        Order[]
+
+  @@index([ownerId])
+}
+
+// Food items available at a restaurant
+model FoodItem {
+  id            String    @id @default(cuid())
+  name          String
+  description   String
+  price         Float     // Store price in the smallest currency unit (e.g., cents) if possible
+  imageUrl      String
+  isAvailable   Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  restaurantId  String
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id])
+
+  orderItems    OrderItem[]
+  reels         Reel[] // A food item can have multiple reels
+
+  @@index([restaurantId])
+}
+
+// The video reels
+model Reel {
+  id            String    @id @default(cuid())
+  videoUrl      String    // URL pointing to a video file (e.g., on S3)
+  caption       String?
+  createdAt     DateTime  @default(now())
+
+  restaurantId  String
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id])
+
+  foodItemId    String
+  foodItem      FoodItem  @relation(fields: [foodItemId], references: [id])
+
+  @@index([restaurantId])
+  @@index([foodItemId])
+}
+
+// User's delivery addresses
+model Address {
+  id        String    @id @default(cuid())
+  street    String
+  city      String
+  state     String
+  zipCode   String
+  country   String
+  isDefault Boolean   @default(false)
+
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+// Order model
+model Order {
+  id            String      @id @default(cuid())
+  totalPrice    Float
+  status        OrderStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+
+  restaurantId  String
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id])
+
+  items         OrderItem[]
+
+  @@index([userId])
+  @@index([restaurantId])
+}
+
+// Join table for Order and FoodItem (Many-to-Many)
+model OrderItem {
+  id        String @id @default(cuid())
+  quantity  Int
+  priceAtTimeOfOrder Float // Price of the item when the order was placed
+
+  orderId   String
+  order     Order  @relation(fields: [orderId], references: [id])
+
+  foodItemId String
+  foodItem   FoodItem @relation(fields: [foodItemId], references: [id])
+
+  @@index([orderId])
+  @@index([foodItemId])
+}
