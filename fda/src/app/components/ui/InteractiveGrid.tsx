@@ -62,7 +62,7 @@ export default function InteractiveGrid() {
     
     // Row 5
     { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><User className="w-8 h-8" /></div>, span: 'col-span-1' },
-    { component: <ExampleButton text="View Menu" variant="secondary" />, span: 'col-span-2' },
+    { component: <ExampleButton text="Watch Reels" variant="secondary" href="/reelBytes" />, span: 'col-span-2' },
     { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white p-4"><span className="font-bold text-center">4.9★ Rating</span></div>, span: 'col-span-2' },
     { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><MapPin className="w-8 h-8" /></div>, span: 'col-span-1' },
   ]
