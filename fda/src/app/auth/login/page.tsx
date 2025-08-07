@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
@@ -16,7 +16,7 @@ interface FormErrors {
   general?: string
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [formData, setFormData] = useState<FormData>({
@@ -262,5 +262,52 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Loading fallback component
+function LoginPageFallback() {
+  return (
+    <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-black text-black mb-2">
+            ReelBites.
+          </h1>
+          <p className="text-lg font-bold text-black">
+            Raw. Fast. Food.
+          </p>
+        </div>
+
+        {/* Loading Form Card */}
+        <div className="bg-white border-2 border-black p-8 neobrutalist-shadow">
+          <h2 className="text-2xl font-bold text-black mb-6 text-center">
+            Welcome Back
+          </h2>
+          
+          <div className="space-y-4">
+            {/* Loading skeleton */}
+            <div className="animate-pulse">
+              <div className="h-4 bg-gray-200 border border-black mb-2 w-24"></div>
+              <div className="h-12 bg-gray-200 border-2 border-black w-full"></div>
+            </div>
+            <div className="animate-pulse">
+              <div className="h-4 bg-gray-200 border border-black mb-2 w-24"></div>
+              <div className="h-12 bg-gray-200 border-2 border-black w-full"></div>
+            </div>
+            <div className="h-12 bg-gray-200 border-2 border-black w-full animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginPageFallback />}>
+      <LoginForm />
+    </Suspense>
   )
 }
