@@ -57,7 +57,7 @@ export default function InteractiveGrid() {
     
     // Row 4
     { component: <ExampleCard title="Burger" price="$8.99" />, span: 'col-span-2' },
-    { component: <ExampleButton text="Sign Up / Login" variant="primary" isPermanentActive={true} />, span: 'col-span-2' },
+    { component: <ExampleButton text="Sign Up / Login" variant="primary" isPermanentActive={true} href="/auth/register" />, span: 'col-span-2' },
     { component: <ExampleCard title="Sushi" price="$15.99" />, span: 'col-span-2' },
     
     // Row 5
