@@ -15,7 +15,7 @@ const updateRestaurantSchema = z.object({
 
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -24,7 +24,7 @@ interface RouteParams {
  */
 export async function GET(request: Request, { params }: RouteParams) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const restaurant = await prisma.restaurant.findUnique({
       where: { id },
       include: {
@@ -53,7 +53,7 @@ export async function GET(request: Request, { params }: RouteParams) {
  * This is a protected route, only the owner can update their restaurant.
  */
 export async function PUT(request: Request, { params }: RouteParams) {
-  const { id: restaurantId } = params;
+  const { id: restaurantId } = await params;
 
   // Extract user info from headers set by the middleware
   const headersList = await headers();

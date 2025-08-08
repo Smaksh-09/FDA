@@ -14,7 +14,7 @@ const updateFoodItemSchema = z.object({
 });
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -22,7 +22,7 @@ interface RouteParams {
  * Protected route for the restaurant owner only.
  */
 export async function PUT(request: Request, { params }: RouteParams) {
-  const { id: foodItemId } = params;
+  const { id: foodItemId } = await params;
 
   const headersList = await headers();
   //@ts-ignore
@@ -76,7 +76,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
  * Protected route for the restaurant owner only.
  */
 export async function DELETE(request: Request, { params }: RouteParams) {
-    const { id: foodItemId } = params;
+    const { id: foodItemId } = await params;
 
     const headersList = await headers();
     //@ts-ignore
