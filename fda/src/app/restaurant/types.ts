@@ -46,3 +46,34 @@ export interface Restaurant {
   email: string
   isOpen: boolean
 }
+
+export interface MenuItem {
+  id: string
+  name: string
+  description: string
+  price: number
+  category: string
+  isAvailable: boolean
+  preparationTime: number // in minutes
+  ingredients?: string[]
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface Analytics {
+  totalRevenue: number
+  totalOrders: number
+  averageOrderValue: number
+  topSellingItem: string
+  dailySales: { date: string; revenue: number; orders: number }[]
+  topItems: { name: string; unitsSold: number; revenue: number }[]
+}
+
+export interface Transaction {
+  id: string
+  transactionId: string
+  amount: number
+  date: Date
+  status: 'COMPLETED' | 'PENDING' | 'FAILED'
+  type: 'WITHDRAWAL' | 'SALE' | 'REFUND'
+}

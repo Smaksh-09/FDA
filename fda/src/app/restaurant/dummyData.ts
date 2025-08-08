@@ -1,4 +1,4 @@
-import { Order, OrderItem, RestaurantStats, Restaurant } from './types'
+import { Order, OrderItem, RestaurantStats, Restaurant, MenuItem, Analytics, Transaction } from './types'
 
 // Dummy restaurant data
 export const dummyRestaurant: Restaurant = {
@@ -192,3 +192,216 @@ export const calculateStats = (orders: Order[]): RestaurantStats => {
 }
 
 export const dummyStats = calculateStats(dummyOrders)
+
+// Dummy menu items
+export const dummyMenuItems: MenuItem[] = [
+  {
+    id: 'menu-1',
+    name: 'Classic Cheeseburger',
+    description: 'Juicy beef patty with melted cheese, lettuce, tomato, and special sauce',
+    price: 249,
+    category: 'Burgers',
+    isAvailable: true,
+    preparationTime: 8,
+    ingredients: ['Beef Patty', 'Cheese', 'Lettuce', 'Tomato', 'Burger Bun', 'Special Sauce'],
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-15')
+  },
+  {
+    id: 'menu-2',
+    name: 'BBQ Burger',
+    description: 'Smoky BBQ beef burger with crispy onions and BBQ sauce',
+    price: 299,
+    category: 'Burgers',
+    isAvailable: true,
+    preparationTime: 10,
+    ingredients: ['Beef Patty', 'BBQ Sauce', 'Crispy Onions', 'Lettuce', 'Burger Bun'],
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-10')
+  },
+  {
+    id: 'menu-3',
+    name: 'Veggie Burger',
+    description: 'Plant-based patty with fresh vegetables and herb mayo',
+    price: 229,
+    category: 'Burgers',
+    isAvailable: false,
+    preparationTime: 7,
+    ingredients: ['Veggie Patty', 'Herb Mayo', 'Lettuce', 'Tomato', 'Onion', 'Burger Bun'],
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-20')
+  },
+  {
+    id: 'menu-4',
+    name: 'Chicken Wings (6pc)',
+    description: 'Crispy chicken wings with choice of sauce',
+    price: 199,
+    category: 'Appetizers',
+    isAvailable: true,
+    preparationTime: 12,
+    ingredients: ['Chicken Wings', 'Spice Mix', 'Sauce'],
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-12')
+  },
+  {
+    id: 'menu-5',
+    name: 'French Fries',
+    description: 'Golden crispy potato fries with sea salt',
+    price: 99,
+    category: 'Sides',
+    isAvailable: true,
+    preparationTime: 5,
+    ingredients: ['Potatoes', 'Sea Salt', 'Oil'],
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-08')
+  },
+  {
+    id: 'menu-6',
+    name: 'Onion Rings',
+    description: 'Crispy battered onion rings with ranch dip',
+    price: 129,
+    category: 'Sides',
+    isAvailable: true,
+    preparationTime: 6,
+    ingredients: ['Onions', 'Batter', 'Ranch Dip'],
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-14')
+  },
+  {
+    id: 'menu-7',
+    name: 'Chicken Wrap',
+    description: 'Grilled chicken with fresh vegetables in a tortilla',
+    price: 179,
+    category: 'Wraps',
+    isAvailable: true,
+    preparationTime: 7,
+    ingredients: ['Grilled Chicken', 'Tortilla', 'Lettuce', 'Tomato', 'Cucumber', 'Sauce'],
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-18')
+  },
+  {
+    id: 'menu-8',
+    name: 'Cola (500ml)',
+    description: 'Refreshing cola drink',
+    price: 45,
+    category: 'Beverages',
+    isAvailable: true,
+    preparationTime: 1,
+    ingredients: ['Cola'],
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-05')
+  },
+  {
+    id: 'menu-9',
+    name: 'Chocolate Milkshake',
+    description: 'Rich and creamy chocolate milkshake',
+    price: 149,
+    category: 'Beverages',
+    isAvailable: false,
+    preparationTime: 4,
+    ingredients: ['Milk', 'Chocolate Syrup', 'Ice Cream', 'Whipped Cream'],
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-21')
+  },
+  {
+    id: 'menu-10',
+    name: 'Caesar Salad',
+    description: 'Fresh romaine lettuce with Caesar dressing and croutons',
+    price: 189,
+    category: 'Salads',
+    isAvailable: true,
+    preparationTime: 5,
+    ingredients: ['Romaine Lettuce', 'Caesar Dressing', 'Croutons', 'Parmesan Cheese'],
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-16')
+  }
+]
+
+// Dummy analytics data
+export const dummyAnalytics: Analytics = {
+  totalRevenue: 124500,
+  totalOrders: 487,
+  averageOrderValue: 256,
+  topSellingItem: 'Classic Cheeseburger',
+  dailySales: [
+    { date: '2024-01-15', revenue: 4250, orders: 18 },
+    { date: '2024-01-16', revenue: 3890, orders: 16 },
+    { date: '2024-01-17', revenue: 5200, orders: 22 },
+    { date: '2024-01-18', revenue: 4650, orders: 19 },
+    { date: '2024-01-19', revenue: 5800, orders: 24 },
+    { date: '2024-01-20', revenue: 6100, orders: 26 },
+    { date: '2024-01-21', revenue: 4950, orders: 21 },
+    { date: '2024-01-22', revenue: 5300, orders: 23 },
+    { date: '2024-01-23', revenue: 4700, orders: 20 },
+    { date: '2024-01-24', revenue: 5500, orders: 24 },
+    { date: '2024-01-25', revenue: 4800, orders: 19 },
+    { date: '2024-01-26', revenue: 5900, orders: 25 },
+    { date: '2024-01-27', revenue: 6200, orders: 27 },
+    { date: '2024-01-28', revenue: 5400, orders: 23 },
+    { date: '2024-01-29', revenue: 4900, orders: 21 }
+  ],
+  topItems: [
+    { name: 'Classic Cheeseburger', unitsSold: 89, revenue: 22161 },
+    { name: 'French Fries', unitsSold: 156, revenue: 15444 },
+    { name: 'BBQ Burger', unitsSold: 67, revenue: 20033 },
+    { name: 'Chicken Wings (6pc)', unitsSold: 78, revenue: 15522 },
+    { name: 'Chicken Wrap', unitsSold: 54, revenue: 9666 },
+    { name: 'Onion Rings', unitsSold: 89, revenue: 11481 },
+    { name: 'Caesar Salad', unitsSold: 45, revenue: 8505 },
+    { name: 'Cola (500ml)', unitsSold: 234, revenue: 10530 },
+    { name: 'Veggie Burger', unitsSold: 23, revenue: 5267 },
+    { name: 'Chocolate Milkshake', unitsSold: 34, revenue: 5066 }
+  ]
+}
+
+// Dummy transaction data
+export const dummyTransactions: Transaction[] = [
+  {
+    id: 'txn-1',
+    transactionId: 'TXN-240125-001',
+    amount: 15500,
+    date: new Date('2024-01-25T09:30:00'),
+    status: 'COMPLETED',
+    type: 'WITHDRAWAL'
+  },
+  {
+    id: 'txn-2',
+    transactionId: 'TXN-240124-002',
+    amount: 587,
+    date: new Date('2024-01-24T16:45:00'),
+    status: 'COMPLETED',
+    type: 'SALE'
+  },
+  {
+    id: 'txn-3',
+    transactionId: 'TXN-240124-001',
+    amount: 249,
+    date: new Date('2024-01-24T14:20:00'),
+    status: 'COMPLETED',
+    type: 'SALE'
+  },
+  {
+    id: 'txn-4',
+    transactionId: 'TXN-240123-003',
+    amount: 12000,
+    date: new Date('2024-01-23T11:15:00'),
+    status: 'PENDING',
+    type: 'WITHDRAWAL'
+  },
+  {
+    id: 'txn-5',
+    transactionId: 'TXN-240123-002',
+    amount: 149,
+    date: new Date('2024-01-23T10:30:00'),
+    status: 'FAILED',
+    type: 'REFUND'
+  },
+  {
+    id: 'txn-6',
+    transactionId: 'TXN-240122-001',
+    amount: 8750,
+    date: new Date('2024-01-22T13:45:00'),
+    status: 'COMPLETED',
+    type: 'WITHDRAWAL'
+  }
+]

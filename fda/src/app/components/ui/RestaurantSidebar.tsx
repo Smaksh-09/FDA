@@ -54,33 +54,12 @@ export default function RestaurantSidebar({ restaurant, currentPage = 'dashboard
       badge: null
     },
     {
-      id: 'customers',
-      name: 'Customers',
-      icon: Users,
-      href: '/restaurant/customers',
-      badge: null
-    },
-    {
-      id: 'hours',
-      name: 'Operating Hours',
-      icon: Clock,
-      href: '/restaurant/hours',
-      badge: null
-    },
-    {
       id: 'payments',
       name: 'Payments',
       icon: DollarSign,
       href: '/restaurant/payments',
       badge: null
     },
-    {
-      id: 'settings',
-      name: 'Settings',
-      icon: Settings,
-      href: '/restaurant/settings',
-      badge: null
-    }
   ]
 
   return (
