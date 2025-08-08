@@ -13,13 +13,16 @@ const loginSchema = z.object({
 const JWT_SECRET = process.env.JWT_SECRET;
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days in seconds
 
-
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is not defined');
-}
-
 export async function POST(request: Request) {
   try {
+    // Check for JWT_SECRET at runtime
+    if (!JWT_SECRET) {
+      console.error('JWT_SECRET environment variable is not defined');
+      return NextResponse.json({ 
+        error: 'Server configuration error. Please contact support.' 
+      }, { status: 500 });
+    }
+
     const body = await request.json();
     
     // Validate input
@@ -52,7 +55,6 @@ export async function POST(request: Request) {
         userId: user.id,
         role: user.role,
       },
-      //@ts-ignore
       JWT_SECRET,
       {
         expiresIn: MAX_AGE,
