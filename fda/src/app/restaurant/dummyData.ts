@@ -1,4 +1,4 @@
-import { Order, OrderItem, RestaurantStats, Restaurant, MenuItem, Analytics, Transaction } from './types'
+import { Order, OrderItem, RestaurantStats, Restaurant, MenuItem, Analytics, Transaction, Reel } from './types'
 
 // Dummy restaurant data
 export const dummyRestaurant: Restaurant = {
@@ -403,5 +403,93 @@ export const dummyTransactions: Transaction[] = [
     date: new Date('2024-01-22T13:45:00'),
     status: 'COMPLETED',
     type: 'WITHDRAWAL'
+  }
+]
+
+// Dummy reels data
+export const dummyReels: Reel[] = [
+  {
+    id: 'reel-1',
+    videoUrl: '/videos/burger-making.mp4',
+    thumbnailUrl: '/thumbnails/burger-making.jpg',
+    caption: 'Watch our chef craft the perfect Classic Cheeseburger! 🍔',
+    linkedMenuItem: dummyMenuItems[0], // Classic Cheeseburger
+    linkedMenuItemId: 'menu-1',
+    restaurantId: '1',
+    views: 2847,
+    likes: 234,
+    createdAt: new Date('2024-01-20T10:30:00'),
+    updatedAt: new Date('2024-01-20T10:30:00'),
+    isActive: true
+  },
+  {
+    id: 'reel-2',
+    videoUrl: '/videos/wings-prep.mp4',
+    thumbnailUrl: '/thumbnails/wings-prep.jpg',
+    caption: 'Crispy chicken wings being prepared to perfection! 🔥',
+    linkedMenuItem: dummyMenuItems[3], // Chicken Wings
+    linkedMenuItemId: 'menu-4',
+    restaurantId: '1',
+    views: 1923,
+    likes: 187,
+    createdAt: new Date('2024-01-18T15:45:00'),
+    updatedAt: new Date('2024-01-18T15:45:00'),
+    isActive: true
+  },
+  {
+    id: 'reel-3',
+    videoUrl: '/videos/fries-golden.mp4',
+    thumbnailUrl: '/thumbnails/fries-golden.jpg',
+    caption: 'Golden French fries straight from the fryer! 🍟',
+    linkedMenuItem: dummyMenuItems[4], // French Fries
+    linkedMenuItemId: 'menu-5',
+    restaurantId: '1',
+    views: 3156,
+    likes: 289,
+    createdAt: new Date('2024-01-15T12:20:00'),
+    updatedAt: new Date('2024-01-15T12:20:00'),
+    isActive: true
+  },
+  {
+    id: 'reel-4',
+    videoUrl: '/videos/bbq-burger.mp4',
+    thumbnailUrl: '/thumbnails/bbq-burger.jpg',
+    caption: 'Smoky BBQ burger with all the fixings! 🔥🍔',
+    linkedMenuItem: dummyMenuItems[1], // BBQ Burger
+    linkedMenuItemId: 'menu-2',
+    restaurantId: '1',
+    views: 1654,
+    likes: 156,
+    createdAt: new Date('2024-01-12T16:10:00'),
+    updatedAt: new Date('2024-01-12T16:10:00'),
+    isActive: false // This one is inactive
+  },
+  {
+    id: 'reel-5',
+    videoUrl: '/videos/wrap-making.mp4',
+    thumbnailUrl: '/thumbnails/wrap-making.jpg',
+    caption: 'Fresh chicken wrap assembly process! 🌯',
+    linkedMenuItem: dummyMenuItems[6], // Chicken Wrap
+    linkedMenuItemId: 'menu-7',
+    restaurantId: '1',
+    views: 987,
+    likes: 78,
+    createdAt: new Date('2024-01-10T14:30:00'),
+    updatedAt: new Date('2024-01-10T14:30:00'),
+    isActive: true
+  },
+  {
+    id: 'reel-6',
+    videoUrl: '/videos/salad-fresh.mp4',
+    thumbnailUrl: '/thumbnails/salad-fresh.jpg',
+    caption: 'Fresh Caesar salad preparation with crispy croutons! 🥗',
+    linkedMenuItem: dummyMenuItems[9], // Caesar Salad
+    linkedMenuItemId: 'menu-10',
+    restaurantId: '1',
+    views: 1234,
+    likes: 102,
+    createdAt: new Date('2024-01-08T11:15:00'),
+    updatedAt: new Date('2024-01-08T11:15:00'),
+    isActive: true
   }
 ]

@@ -77,3 +77,30 @@ export interface Transaction {
   status: 'COMPLETED' | 'PENDING' | 'FAILED'
   type: 'WITHDRAWAL' | 'SALE' | 'REFUND'
 }
+
+export interface Reel {
+  id: string
+  videoUrl: string
+  thumbnailUrl: string
+  caption: string
+  linkedMenuItem: MenuItem | null
+  linkedMenuItemId: string | null
+  restaurantId: string
+  views: number
+  likes: number
+  createdAt: Date
+  updatedAt: Date
+  isActive: boolean
+}
+
+export type UploadStep = 'file-selection' | 'menu-linking' | 'uploading'
+
+export interface UploadState {
+  step: UploadStep
+  selectedFile: File | null
+  linkedMenuItemId: string | null
+  caption: string
+  progress: number
+  isUploading: boolean
+  isComplete: boolean
+}

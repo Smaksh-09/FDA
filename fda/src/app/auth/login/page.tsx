@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { useUserStore } from '@/store/useUserStore'
 
 interface FormData {
   email: string
@@ -19,6 +20,7 @@ interface FormErrors {
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { setUser } = useUserStore()
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: ''
@@ -93,9 +95,23 @@ function LoginForm() {
       const data = await response.json()
 
       if (response.ok) {
-        // Login successful - redirect to dashboard or home
+        // Login successful - fetch user data and update store
+        try {
+          const userResponse = await fetch('/api/auth/me', {
+            method: 'GET',
+            credentials: 'include'
+          })
+          
+          if (userResponse.ok) {
+            const userData = await userResponse.json()
+            setUser(userData)
+          }
+        } catch (error) {
+          console.error('Failed to fetch user data after login:', error)
+        }
+        
+        // Redirect to dashboard or home
         router.push('/') // You can change this to a dashboard route
-        router.refresh() // Refresh to update auth state
       } else {
         // Handle errors from backend
         if (response.status === 401) {

@@ -12,7 +12,8 @@ import {
   Clock,
   DollarSign,
   LogOut,
-  Bell
+  Bell,
+  Video
 } from 'lucide-react'
 import { Restaurant } from '../../restaurant/types'
 
@@ -44,6 +45,13 @@ export default function RestaurantSidebar({ restaurant, currentPage = 'dashboard
       name: 'Menu Items',
       icon: MenuIcon,
       href: '/restaurant/menu',
+      badge: null
+    },
+    {
+      id: 'reels',
+      name: 'Reels',
+      icon: Video,
+      href: '/restaurant/reels',
       badge: null
     },
     {
