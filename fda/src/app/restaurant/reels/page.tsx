@@ -12,6 +12,7 @@ export default function ReelsManagementPage() {
   const [reels, setReels] = useState<Reel[]>([])
   const [isUploadPanelOpen, setIsUploadPanelOpen] = useState(false)
   const [menuItems, setMenuItems] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'inactive'>('all')
 
   const handleUploadComplete = (newReel: Reel) => {
@@ -81,6 +82,8 @@ export default function ReelsManagementPage() {
         setReels(data.reels || [])
       } catch (e) {
         console.error(e)
+      } finally {
+        setIsLoading(false)
       }
     }
     fetchReels()
@@ -108,6 +111,11 @@ export default function ReelsManagementPage() {
 
       {/* Main Content */}
       <div className="flex-1 p-6">
+        {isLoading && (
+          <div className="fixed inset-0 z-40 flex items-center justify-center">
+            <div className="w-14 h-14 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin" />
+          </div>
+        )}
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>

@@ -263,18 +263,24 @@ export default function UploadReelPanel({ isOpen, onClose, menuItems, onUploadCo
               </p>
             </div>
 
-            {/* Start Upload Button */}
-            <button
-              onClick={onSubmit}
-              disabled={!watch('linkedMenuItemId') || isUploading}
-              className={`w-full py-3 px-4 border-2 border-black font-bold text-lg transition-all ${
-                watch('linkedMenuItemId') && !isUploading
-                  ? 'bg-[#39FF14] text-black hover:neobrutalist-shadow-active active:translate-x-1 active:translate-y-1'
-                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              {isUploading ? '[UPLOADING…]' : '[START UPLOAD]'}
-            </button>
+            {/* Start Upload Button or Spinner */}
+            {isUploading ? (
+              <div className="w-full flex items-center justify-center py-3">
+                <div className="w-8 h-8 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin" />
+              </div>
+            ) : (
+              <button
+                onClick={onSubmit}
+                disabled={!watch('linkedMenuItemId')}
+                className={`w-full py-3 px-4 border-2 border-black font-bold text-lg transition-all ${
+                  watch('linkedMenuItemId')
+                    ? 'bg-[#39FF14] text-black hover:neobrutalist-shadow-active active:translate-x-1 active:translate-y-1'
+                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                [START UPLOAD]
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -13,6 +13,7 @@ interface ReelCardProps {
 
 export default function ReelCard({ reel, onEdit, onDelete, onToggleActive }: ReelCardProps) {
   const [showMenu, setShowMenu] = useState(false)
+  const [isVideoLoading, setIsVideoLoading] = useState(true)
 
   const handleDelete = () => {
     if (confirm(`Are you sure you want to delete this reel? This action cannot be undone.`)) {
@@ -50,12 +51,20 @@ export default function ReelCard({ reel, onEdit, onDelete, onToggleActive }: Ree
         </div>
       )}
 
-      {/* Video Thumbnail */}
-      <div className="relative aspect-[9/16] bg-gray-800 border-b-2 border-white">
-        {/* Thumbnail Image Placeholder */}
-        <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
-          <Play className="w-12 h-12 text-white opacity-80" />
-        </div>
+      {/* Video */}
+      <div className="relative aspect-[9/16] bg-gray-800 border-b-2 border-white overflow-hidden">
+        <video
+          src={(reel as any).videoUrl}
+          className="w-full h-full object-cover"
+          controls
+          onLoadedData={() => setIsVideoLoading(false)}
+        />
+        {/* Inline video loading spinner */}
+        {isVideoLoading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin" />
+          </div>
+        )}
         
         {/* Overlay with video stats */}
         <div className="absolute bottom-2 left-2 right-2 text-white">

@@ -41,7 +41,6 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
       isAvailable: formData.isAvailable!,
       preparationTime: formData.preparationTime!,
       ingredients: formData.ingredients || [],
-      // @ts-ignore
       imageUrl: (formData as any).imageUrl || undefined,
     }
     onSave(newItem as MenuItem)
@@ -50,7 +49,7 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
   const categories = ['Burgers', 'Appetizers', 'Sides', 'Wraps', 'Beverages', 'Salads', 'Desserts']
 
   return (
-    <div className="fixed inset-0 backdrop-blur-md bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-md   bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white/90 backdrop-blur-sm border-2 border-black p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto neobrutalist-shadow">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -132,7 +131,6 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
               <input
                 type="url"
                 value={(formData as any).imageUrl || ''}
-                // @ts-ignore
                 onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value as any })}
                 className="w-full px-3 py-2 border-2 border-black bg-white text-black font-normal focus:outline-none focus:border-[#39FF14] transition-colors"
                 placeholder="https://..."

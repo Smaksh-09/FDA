@@ -56,6 +56,7 @@ export interface MenuItem {
   isAvailable: boolean
   preparationTime: number // in minutes
   ingredients?: string[]
+  imageUrl?: string
   createdAt: Date
   updatedAt: Date
 }
