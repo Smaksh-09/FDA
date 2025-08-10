@@ -68,7 +68,7 @@ model FoodItem {
   name          String
   description   String
   price         Float     // Store price in the smallest currency unit (e.g., cents) if possible
-  imageUrl      String
+  imageUrl      String? 
   isAvailable   Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

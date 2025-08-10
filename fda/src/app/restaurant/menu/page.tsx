@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from 'react'
-import { Plus, Edit, Trash2, Clock, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Plus, Edit, Trash2, Clock, X, Image } from 'lucide-react'
 import RestaurantSidebar from '../../components/ui/RestaurantSidebar'
-import { dummyMenuItems, dummyRestaurant } from '../dummyData'
+import { dummyRestaurant } from '../dummyData'
 import { MenuItem } from '../types'
 
 interface MenuItemModalProps {
@@ -32,8 +32,8 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
-    const newItem: MenuItem = {
-      id: item?.id || `menu-${Date.now()}`,
+    const newItem: Partial<MenuItem> = {
+      id: item?.id || undefined,
       name: formData.name!,
       description: formData.description!,
       price: formData.price!,
@@ -41,19 +41,16 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
       isAvailable: formData.isAvailable!,
       preparationTime: formData.preparationTime!,
       ingredients: formData.ingredients || [],
-      createdAt: item?.createdAt || new Date(),
-      updatedAt: new Date()
+      imageUrl: (formData as any).imageUrl || undefined,
     }
-    
-    onSave(newItem)
-    onClose()
+    onSave(newItem as MenuItem)
   }
 
   const categories = ['Burgers', 'Appetizers', 'Sides', 'Wraps', 'Beverages', 'Salads', 'Desserts']
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white border-2 border-black p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto neobrutalist-shadow">
+      <div className="bg-white/90 backdrop-blur-sm border-2 border-black p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto neobrutalist-shadow">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-black">
@@ -97,7 +94,7 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
             />
           </div>
 
-          {/* Price and Category */}
+          {/* Price, Category and Image URL */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold text-black mb-2">
@@ -126,6 +123,18 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-bold text-black mb-2">
+                Image URL (optional)
+              </label>
+              <input
+                type="url"
+                value={(formData as any).imageUrl || ''}
+                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value as any })}
+                className="w-full px-3 py-2 border-2 border-black bg-white text-black font-normal focus:outline-none focus:border-[#39FF14] transition-colors"
+                placeholder="https://..."
+              />
             </div>
           </div>
 
@@ -181,7 +190,7 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
 }
 
 export default function MenuPage() {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(dummyMenuItems)
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isNewItem, setIsNewItem] = useState(false)
@@ -189,14 +198,30 @@ export default function MenuPage() {
 
   const categories = ['All', 'Burgers', 'Appetizers', 'Sides', 'Wraps', 'Beverages', 'Salads', 'Desserts']
 
-  const handleToggleAvailability = (itemId: string) => {
-    setMenuItems(prev =>
-      prev.map(item =>
-        item.id === itemId
-          ? { ...item, isAvailable: !item.isAvailable, updatedAt: new Date() }
-          : item
-      )
-    )
+  const fetchItems = async () => {
+    const res = await fetch('/api/food-items', { credentials: 'include' })
+    if (res.ok) {
+      const data = await res.json()
+      setMenuItems(data)
+    }
+  }
+
+  useEffect(() => {
+    fetchItems()
+  }, [])
+
+  const handleToggleAvailability = async (itemId: string) => {
+    const item = menuItems.find(i => i.id === itemId)
+    if (!item) return
+    const res = await fetch(`/api/food-items/${itemId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ isAvailable: !item.isAvailable })
+    })
+    if (res.ok) {
+      fetchItems()
+    }
   }
 
   const handleAddNew = () => {
@@ -211,23 +236,51 @@ export default function MenuPage() {
     setIsModalOpen(true)
   }
 
-  const handleDelete = (itemId: string) => {
-    if (confirm('Are you sure you want to delete this menu item?')) {
-      setMenuItems(prev => prev.filter(item => item.id !== itemId))
+  const handleDelete = async (itemId: string) => {
+    if (!confirm('Are you sure you want to delete this menu item?')) return
+    const res = await fetch(`/api/food-items/${itemId}`, { method: 'DELETE', credentials: 'include' })
+    if (res.ok) {
+      fetchItems()
     }
   }
 
-  const handleSave = (item: MenuItem) => {
+  const handleSave = async (item: MenuItem) => {
     if (isNewItem) {
-      setMenuItems(prev => [...prev, item])
+      const res = await fetch('/api/food-items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          imageUrl: (item as any).imageUrl,
+          isAvailable: item.isAvailable,
+        })
+      })
+      if (res.ok) {
+        setIsModalOpen(false)
+        fetchItems()
+      }
     } else {
-      setMenuItems(prev =>
-        prev.map(existing =>
-          existing.id === item.id ? item : existing
-        )
-      )
+      const res = await fetch(`/api/food-items/${item.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          isAvailable: item.isAvailable,
+        })
+      })
+      if (res.ok) {
+        setIsModalOpen(false)
+        fetchItems()
+      }
     }
   }
+
 
   const filteredItems = menuItems.filter(item => 
     selectedCategory === 'All' || item.category === selectedCategory

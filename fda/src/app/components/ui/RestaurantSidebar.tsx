@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useUserStore } from '@/store/useUserStore'
 import Link from 'next/link'
 import { 
   Home, 
@@ -24,6 +26,8 @@ interface RestaurantSidebarProps {
 
 export default function RestaurantSidebar({ restaurant, currentPage = 'dashboard' }: RestaurantSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const router = useRouter()
+  const { logout } = useUserStore()
 
   const menuItems = [
     {
@@ -168,13 +172,25 @@ export default function RestaurantSidebar({ restaurant, currentPage = 'dashboard
               <p>{restaurant.phone}</p>
               <p>{restaurant.email}</p>
             </div>
-            <button className="w-full flex items-center gap-2 p-2 bg-white border-2 border-black text-black font-bold hover:bg-red-50 transition-colors">
+            <button
+              onClick={async () => {
+                await logout()
+                router.push('/')
+              }}
+              className="w-full flex items-center gap-2 p-2 bg-white border-2 border-black text-black font-bold hover:bg-red-50 transition-colors"
+            >
               <LogOut className="w-4 h-4" />
               Logout
             </button>
           </div>
         ) : (
-          <button className="w-full p-2 bg-white border-2 border-black text-black font-bold hover:bg-red-50 transition-colors">
+          <button
+            onClick={async () => {
+              await logout()
+              router.push('/')
+            }}
+            className="w-full p-2 bg-white border-2 border-black text-black font-bold hover:bg-red-50 transition-colors"
+          >
             <LogOut className="w-4 h-4 mx-auto" />
           </button>
         )}

@@ -20,17 +20,19 @@ export default function ReelCard({ reel, onEdit, onDelete, onToggleActive }: Ree
     }
   }
 
-  const formatViews = (views: number): string => {
-    if (views >= 1000000) {
-      return `${(views / 1000000).toFixed(1)}M`
-    } else if (views >= 1000) {
-      return `${(views / 1000).toFixed(1)}K`
+  const formatViews = (views?: number): string => {
+    const safe = typeof views === 'number' && !Number.isNaN(views) ? views : 0
+    if (safe >= 1000000) {
+      return `${(safe / 1000000).toFixed(1)}M`
+    } else if (safe >= 1000) {
+      return `${(safe / 1000).toFixed(1)}K`
     }
-    return views.toString()
+    return String(safe)
   }
 
-  const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('en-IN', {
+  const formatDate = (date: Date | string | undefined): string => {
+    const d = date instanceof Date ? date : date ? new Date(date) : new Date()
+    return d.toLocaleDateString('en-IN', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
@@ -59,14 +61,14 @@ export default function ReelCard({ reel, onEdit, onDelete, onToggleActive }: Ree
         <div className="absolute bottom-2 left-2 right-2 text-white">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 bg-black bg-opacity-60 px-2 py-1 border border-white">
-                <Eye className="w-3 h-3" />
-                <span className="font-bold">{formatViews(reel.views)}</span>
-              </div>
-              <div className="flex items-center gap-1 bg-black bg-opacity-60 px-2 py-1 border border-white">
-                <Heart className="w-3 h-3" />
-                <span className="font-bold">{reel.likes}</span>
-              </div>
+          <div className="flex items-center gap-1 bg-black bg-opacity-60 px-2 py-1 border border-white">
+            <Eye className="w-3 h-3" />
+            <span className="font-bold">{formatViews((reel as any).views)}</span>
+          </div>
+          <div className="flex items-center gap-1 bg-black bg-opacity-60 px-2 py-1 border border-white">
+            <Heart className="w-3 h-3" />
+            <span className="font-bold">{(reel as any).likes ?? 0}</span>
+          </div>
             </div>
           </div>
         </div>
@@ -95,7 +97,7 @@ export default function ReelCard({ reel, onEdit, onDelete, onToggleActive }: Ree
         {/* Date */}
         <div className="mb-4">
           <span className="text-gray-400 text-xs">
-            Created: {formatDate(reel.createdAt)}
+            Created: {formatDate((reel as any).createdAt)}
           </span>
         </div>
 
@@ -105,15 +107,15 @@ export default function ReelCard({ reel, onEdit, onDelete, onToggleActive }: Ree
           <button
             onClick={() => onToggleActive(reel.id)}
             className="flex items-center gap-2 text-white hover:text-[#39FF14] transition-colors"
-            title={reel.isActive ? 'Deactivate reel' : 'Activate reel'}
+            title={(reel as any).isActive ? 'Deactivate reel' : 'Activate reel'}
           >
-            {reel.isActive ? (
+            {(reel as any).isActive !== false ? (
               <ToggleRight className="w-5 h-5 text-[#39FF14]" />
             ) : (
               <ToggleLeft className="w-5 h-5 text-gray-400" />
             )}
             <span className="text-xs font-bold">
-              {reel.isActive ? 'ACTIVE' : 'INACTIVE'}
+              {(reel as any).isActive !== false ? 'ACTIVE' : 'INACTIVE'}
             </span>
           </button>
 

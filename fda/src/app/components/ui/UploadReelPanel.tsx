@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from 'react'
+import { useForm } from 'react-hook-form'
 import { UploadCloud, X, Play } from 'lucide-react'
 import { UploadState, MenuItem } from '../../restaurant/types'
 
@@ -21,6 +22,15 @@ export default function UploadReelPanel({ isOpen, onClose, menuItems, onUploadCo
     isUploading: false,
     isComplete: false
   })
+  // Additional required state
+  const [videoFile, setVideoFile] = useState<File | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+
+  const { register, handleSubmit, setValue, watch, reset } = useForm<{ linkedMenuItemId: string; caption: string }>({
+    defaultValues: { linkedMenuItemId: '', caption: '' }
+  })
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -33,6 +43,7 @@ export default function UploadReelPanel({ isOpen, onClose, menuItems, onUploadCo
         step: 'menu-linking',
         selectedFile: file
       }))
+      setVideoFile(file)
     } else {
       alert('Please select a valid video file')
     }
@@ -53,66 +64,76 @@ export default function UploadReelPanel({ isOpen, onClose, menuItems, onUploadCo
     }
   }
 
-  const handleStartUpload = async () => {
-    setUploadState(prev => ({
-      ...prev,
-      step: 'uploading',
-      isUploading: true,
-      progress: 0
-    }))
+  const onSubmit = handleSubmit(async ({ linkedMenuItemId, caption }) => {
+    setError(null)
+    if (!videoFile) {
+      setError('Please select a video file first.')
+      return
+    }
 
-    // Simulate upload progress
-    const progressInterval = setInterval(() => {
-      setUploadState(prev => {
-        const newProgress = prev.progress + Math.random() * 15
-        if (newProgress >= 100) {
-          clearInterval(progressInterval)
-          return {
-            ...prev,
-            progress: 100,
-            isUploading: false,
-            isComplete: true
-          }
-        }
-        return {
-          ...prev,
-          progress: newProgress
-        }
-      })
-    }, 200)
+    // Begin upload
+    setIsUploading(true)
+    setUploadProgress(5)
+    setUploadState(prev => ({ ...prev, step: 'uploading', isUploading: true, progress: 5 }))
 
-    // Simulate completion after 3 seconds
-    setTimeout(() => {
-      clearInterval(progressInterval)
-      setUploadState(prev => ({
-        ...prev,
-        progress: 100,
-        isUploading: false,
-        isComplete: true
-      }))
-      
-      // Create mock reel and call completion handler
-      const newReel = {
-        id: `reel-${Date.now()}`,
-        videoUrl: URL.createObjectURL(uploadState.selectedFile!),
-        thumbnailUrl: '/thumbnails/default-reel.jpg',
-        caption: uploadState.caption,
-        linkedMenuItem: menuItems.find(item => item.id === uploadState.linkedMenuItemId) || null,
-        linkedMenuItemId: uploadState.linkedMenuItemId,
-        restaurantId: '1',
-        views: 0,
-        likes: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isActive: true
+    try {
+      // Step A: Get signature
+      const sigRes = await fetch('/api/reels/upload-signature', { method: 'POST', credentials: 'include' })
+      if (!sigRes.ok) throw new Error('Failed to obtain upload signature.')
+      const { signature, timestamp } = await sigRes.json()
+
+      // Step B: Upload to Cloudinary
+      const fd = new FormData()
+      fd.append('file', videoFile)
+      fd.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY || '')
+      fd.append('timestamp', String(timestamp))
+      fd.append('signature', signature)
+      if (process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_FOLDER) {
+        fd.append('folder', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_FOLDER)
       }
-      
-      setTimeout(() => {
-        onUploadComplete(newReel)
-        handleClose()
-      }, 2000)
-    }, 3000)
-  }
+
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      if (!cloudName) throw new Error('Missing Cloudinary cloud name')
+
+      const uploadResp = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+        method: 'POST',
+        body: fd
+      })
+      if (!uploadResp.ok) throw new Error('Video upload failed.')
+      const uploadJson = await uploadResp.json()
+
+      setUploadProgress(60)
+      setUploadState(prev => ({ ...prev, progress: 60 }))
+
+      // Step C: Confirm with backend
+      const createRes = await fetch('/api/reels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ videoUrl: uploadJson.secure_url, caption, foodItemId: linkedMenuItemId })
+      })
+      if (!createRes.ok) throw new Error('Failed to create reel on server.')
+      const newReel = await createRes.json()
+
+      setUploadProgress(100)
+      setUploadState(prev => ({ ...prev, progress: 100, isUploading: false, isComplete: true }))
+      setIsUploading(false)
+
+      onUploadComplete(newReel)
+
+      // Reset and close
+      reset()
+      setVideoFile(null)
+      setError(null)
+      setTimeout(() => handleClose(), 800)
+    } catch (e: any) {
+      console.error(e)
+      const msg = e?.message || 'Upload failed. Please try again.'
+      setError(msg)
+      setIsUploading(false)
+      setUploadState(prev => ({ ...prev, isUploading: false, step: 'menu-linking' }))
+    }
+  })
 
   const handleClose = () => {
     setUploadState({
@@ -194,17 +215,25 @@ export default function UploadReelPanel({ isOpen, onClose, menuItems, onUploadCo
           <div>
             <h3 className="text-lg font-bold text-white mb-4">LINK TO MENU ITEM</h3>
             
+            {/* Error banner */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border-2 border-red-500 text-red-700 font-bold text-sm">
+                {error}
+              </div>
+            )}
+
             {/* Menu Item Dropdown */}
             <div className="mb-4">
               <label className="block text-sm font-bold text-white mb-2">
                 Select Menu Item:
               </label>
               <select
-                value={uploadState.linkedMenuItemId || ''}
-                onChange={(e) => setUploadState(prev => ({
-                  ...prev,
-                  linkedMenuItemId: e.target.value || null
-                }))}
+                {...register('linkedMenuItemId', { required: true })}
+                value={watch('linkedMenuItemId')}
+                onChange={(e) => {
+                  setValue('linkedMenuItemId', e.target.value)
+                  setUploadState(prev => ({ ...prev, linkedMenuItemId: e.target.value || null }))
+                }}
                 className="w-full px-3 py-2 bg-white border-2 border-black text-black font-bold focus:outline-none focus:border-[#39FF14]"
               >
                 <option value="">-- Select a menu item --</option>
@@ -222,31 +251,29 @@ export default function UploadReelPanel({ isOpen, onClose, menuItems, onUploadCo
                 Caption (Optional):
               </label>
               <textarea
-                value={uploadState.caption}
-                onChange={(e) => setUploadState(prev => ({
-                  ...prev,
-                  caption: e.target.value
-                }))}
+                {...register('caption')}
+                value={watch('caption')}
+                onChange={(e) => setValue('caption', e.target.value)}
                 className="w-full px-3 py-2 bg-white border-2 border-black text-black font-normal focus:outline-none focus:border-[#39FF14] h-24 resize-none"
                 placeholder="Add a compelling caption for your reel..."
                 maxLength={200}
               />
               <p className="text-xs text-gray-300 mt-1">
-                {uploadState.caption.length}/200 characters
+                {watch('caption')?.length || 0}/200 characters
               </p>
             </div>
 
             {/* Start Upload Button */}
             <button
-              onClick={handleStartUpload}
-              disabled={!uploadState.linkedMenuItemId}
+              onClick={onSubmit}
+              disabled={!watch('linkedMenuItemId') || isUploading}
               className={`w-full py-3 px-4 border-2 border-black font-bold text-lg transition-all ${
-                uploadState.linkedMenuItemId
+                watch('linkedMenuItemId') && !isUploading
                   ? 'bg-[#39FF14] text-black hover:neobrutalist-shadow-active active:translate-x-1 active:translate-y-1'
                   : 'bg-gray-600 text-gray-400 cursor-not-allowed'
               }`}
             >
-              [START UPLOAD]
+              {isUploading ? '[UPLOADING…]' : '[START UPLOAD]'}
             </button>
           </div>
         </div>
@@ -264,11 +291,11 @@ export default function UploadReelPanel({ isOpen, onClose, menuItems, onUploadCo
             <div className="w-full bg-white border-2 border-black h-8 mb-4">
               <div
                 className="h-full bg-[#39FF14] transition-all duration-300 ease-out flex items-center justify-center"
-                style={{ width: `${uploadState.progress}%` }}
+                style={{ width: `${uploadProgress}` + '%' }}
               >
-                {uploadState.progress > 15 && (
+                {uploadProgress > 15 && (
                   <span className="text-black font-bold text-sm">
-                    {Math.round(uploadState.progress)}%
+                    {Math.round(uploadProgress)}%
                   </span>
                 )}
               </div>

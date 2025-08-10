@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ChevronDown, User, LogOut, Building2, Play, ShoppingBag } from 'lucide-react'
 import { useUserStore } from '@/store/useUserStore'
 
 export default function Navbar() {
   const { user, isLoading, setUser, setLoading, logout } = useUserStore()
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const router = useRouter()
 
   // Check if user is logged in by checking for auth token or making API call
   useEffect(() => {
@@ -169,13 +171,14 @@ export default function Navbar() {
                           <User className="w-4 h-4 inline mr-2" />
                           Your Account
                         </Link>
-                        <button
-                          onClick={async () => {
-                            await logout()
-                            setShowUserMenu(false)
-                          }}
-                          className="w-full text-left px-4 py-2 text-black font-bold hover:bg-red-100 transition-colors"
-                        >
+                      <button
+                        onClick={async () => {
+                          await logout()
+                          setShowUserMenu(false)
+                          router.push('/')
+                        }}
+                        className="w-full text-left px-4 py-2 text-black font-bold hover:bg-red-100 transition-colors"
+                      >
                           <LogOut className="w-4 h-4 inline mr-2" />
                           Logout
                         </button>

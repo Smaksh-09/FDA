@@ -1,16 +1,17 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus, Video, TrendingUp, Eye, Heart } from 'lucide-react'
 import RestaurantSidebar from '../../components/ui/RestaurantSidebar'
 import UploadReelPanel from '../../components/ui/UploadReelPanel'
 import ReelCard from '../../components/ui/ReelCard'
-import { dummyReels, dummyRestaurant, dummyMenuItems } from '../dummyData'
+import { dummyRestaurant } from '../dummyData'
 import { Reel } from '../types'
 
 export default function ReelsManagementPage() {
-  const [reels, setReels] = useState<Reel[]>(dummyReels)
+  const [reels, setReels] = useState<Reel[]>([])
   const [isUploadPanelOpen, setIsUploadPanelOpen] = useState(false)
+  const [menuItems, setMenuItems] = useState<any[]>([])
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'inactive'>('all')
 
   const handleUploadComplete = (newReel: Reel) => {
@@ -66,6 +67,37 @@ export default function ReelsManagementPage() {
     return num.toString()
   }
 
+  // Fetch reels for this restaurant on mount
+  useEffect(() => {
+    const fetchReels = async () => {
+      try {
+        // Here we assume current user is the owner; backend will filter via restaurantId if provided
+        const params = new URLSearchParams()
+        // If you have the restaurant id in state, add it here
+        // params.set('restaurantId', currentRestaurantId)
+        const res = await fetch(`/api/reels?${params.toString()}`, { credentials: 'include' })
+        if (!res.ok) throw new Error('Failed to fetch reels')
+        const data = await res.json()
+        setReels(data.reels || [])
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    fetchReels()
+    const fetchMenu = async () => {
+      try {
+        const res = await fetch('/api/food-items', { credentials: 'include' })
+        if (res.ok) {
+          const data = await res.json()
+          setMenuItems(data)
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    fetchMenu()
+  }, [])
+
   return (
     <div className="min-h-screen bg-[#F5F5F5] flex">
       {/* Sidebar */}
@@ -98,10 +130,10 @@ export default function ReelsManagementPage() {
         </div>
 
         {/* Upload Panel */}
-        <UploadReelPanel
+          <UploadReelPanel
           isOpen={isUploadPanelOpen}
           onClose={() => setIsUploadPanelOpen(false)}
-          menuItems={dummyMenuItems}
+            menuItems={menuItems}
           onUploadComplete={handleUploadComplete}
         />
 
