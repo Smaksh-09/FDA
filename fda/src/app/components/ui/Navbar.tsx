@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ChevronDown, User, LogOut } from 'lucide-react'
+import { ChevronDown, User, LogOut, Building2, Play, ShoppingBag } from 'lucide-react'
 import { useUserStore } from '@/store/useUserStore'
 
 export default function Navbar() {
@@ -62,48 +62,128 @@ export default function Navbar() {
           </div>
 
           {/* Right side - Conditional rendering */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-4">
             {isLoading ? (
               // Loading state
               <div className="w-20 h-8 bg-gray-700 border-2 border-gray-600 animate-pulse"></div>
             ) : user ? (
-              // Logged in state - User menu
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 text-white font-bold text-sm sm:text-base hover:text-[#39FF14] transition-colors"
-                >
-                  <User className="w-4 h-4" />
-                  <span className="hidden sm:inline">{user.name}</span>
-                  <ChevronDown className="w-4 h-4" />
-                </button>
+              // Logged in state
+              <>
+                {/* Action Buttons for logged-in users */}
+                <div className="hidden md:flex items-center gap-3">
+                  <Link
+                    href="/reelBytes"
+                    className="flex items-center gap-2 px-3 py-2 bg-white border-2 border-white text-black font-bold text-sm hover:bg-gray-100 transition-colors"
+                  >
+                    <Play className="w-4 h-4" />
+                    Watch Reels
+                  </Link>
+                  <Link
+                    href="/#order-section"
+                    className="flex items-center gap-2 px-3 py-2 bg-white border-2 border-white text-black font-bold text-sm hover:bg-gray-100 transition-colors"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    Order Food
+                  </Link>
+                  {/* Show Become a Partner button only for regular users */}
+                  {user.role === 'USER' && (
+                    <Link
+                      href="/onboarding"
+                      className="flex items-center gap-2 px-3 py-2 bg-[#39FF14] border-2 border-black text-black font-bold text-sm hover:shadow-[4px_4px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] active:shadow-none active:translate-x-0 active:translate-y-0 transition-all duration-100"
+                    >
+                      <Building2 className="w-4 h-4" />
+                      Become a Partner
+                    </Link>
+                  )}
+                  {/* Show Dashboard button for restaurant owners */}
+                  {user.role === 'RESTAURANT_OWNER' && (
+                    <Link
+                      href="/restaurant"
+                      className="flex items-center gap-2 px-3 py-2 bg-[#39FF14] border-2 border-black text-black font-bold text-sm hover:shadow-[4px_4px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] active:shadow-none active:translate-x-0 active:translate-y-0 transition-all duration-100"
+                    >
+                      <Building2 className="w-4 h-4" />
+                      Dashboard
+                    </Link>
+                  )}
+                </div>
 
-                {/* Dropdown Menu */}
-                {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border-2 border-black neobrutalist-shadow">
-                    <div className="py-2">
-                      <Link
-                        href="/account"
-                        className="block px-4 py-2 text-black font-bold hover:bg-[#39FF14] transition-colors"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        <User className="w-4 h-4 inline mr-2" />
-                        Your Account
-                      </Link>
-                      <button
-                        onClick={async () => {
-                          await logout()
-                          setShowUserMenu(false)
-                        }}
-                        className="w-full text-left px-4 py-2 text-black font-bold hover:bg-red-100 transition-colors"
-                      >
-                        <LogOut className="w-4 h-4 inline mr-2" />
-                        Logout
-                      </button>
+                {/* User menu */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-2 text-white font-bold text-sm sm:text-base hover:text-[#39FF14] transition-colors"
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">{user.name}</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white border-2 border-black shadow-[4px_4px_0px_#000]">
+                      <div className="py-2">
+                        {/* Mobile action buttons */}
+                        <div className="md:hidden border-b-2 border-gray-200 pb-2 mb-2">
+                          <Link
+                            href="/reelBytes"
+                            className="flex items-center gap-2 px-4 py-2 text-black font-bold hover:bg-[#39FF14] transition-colors"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            <Play className="w-4 h-4" />
+                            Watch Reels
+                          </Link>
+                          <Link
+                            href="/#order-section"
+                            className="flex items-center gap-2 px-4 py-2 text-black font-bold hover:bg-[#39FF14] transition-colors"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            <ShoppingBag className="w-4 h-4" />
+                            Order Food
+                          </Link>
+                          {user.role === 'USER' && (
+                            <Link
+                              href="/onboarding"
+                              className="flex items-center gap-2 px-4 py-2 text-black font-bold hover:bg-[#39FF14] transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <Building2 className="w-4 h-4" />
+                              Become a Partner
+                            </Link>
+                          )}
+                          {user.role === 'RESTAURANT_OWNER' && (
+                            <Link
+                              href="/restaurant"
+                              className="flex items-center gap-2 px-4 py-2 text-black font-bold hover:bg-[#39FF14] transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <Building2 className="w-4 h-4" />
+                              Dashboard
+                            </Link>
+                          )}
+                        </div>
+                        <Link
+                          href="/account"
+                          className="block px-4 py-2 text-black font-bold hover:bg-[#39FF14] transition-colors"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <User className="w-4 h-4 inline mr-2" />
+                          Your Account
+                        </Link>
+                        <button
+                          onClick={async () => {
+                            await logout()
+                            setShowUserMenu(false)
+                          }}
+                          className="w-full text-left px-4 py-2 text-black font-bold hover:bg-red-100 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4 inline mr-2" />
+                          Logout
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              </>
             ) : (
               // Not logged in state - Sign Up button
               <Link 

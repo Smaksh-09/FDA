@@ -2,15 +2,17 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Home } from 'lucide-react'
+import { ArrowLeft, Home, Building2, Star, TrendingUp, Users } from 'lucide-react'
 import TabNavigation from '../components/ui/TabNavigation'
 import ProfileTab from '../components/ui/ProfileTab'
 import OrderHistoryTab from '../components/ui/OrderHistoryTab'
 import AddressesTab from '../components/ui/AddressesTab'
 import { dummyAccountData } from './dummyData'
 import { TabType, UserProfile, SavedAddress } from './types'
+import { useUserStore } from '@/store/useUserStore'
 
 export default function AccountPage() {
+  const { user } = useUserStore()
   const [activeTab, setActiveTab] = useState<TabType>('PROFILE')
   const [accountData, setAccountData] = useState(dummyAccountData)
 
@@ -89,6 +91,77 @@ export default function AccountPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto p-6">
+        {/* Partner Conversion CTA - Only show for regular users */}
+        {user && user.role === 'USER' && (
+          <div className="mb-8 bg-gradient-to-r from-[#39FF14] to-[#32E60F] border-4 border-black p-8">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <Building2 className="w-8 h-8 text-black" />
+                  <h2 className="text-2xl lg:text-3xl font-black text-black">
+                    Ready to List Your Restaurant?
+                  </h2>
+                </div>
+                <p className="text-black font-normal text-lg mb-4">
+                  Join thousands of restaurant partners and start showcasing your delicious food through engaging reels. 
+                  Reach more customers and grow your business with ReelBites.
+                </p>
+                <div className="flex items-center gap-6 text-black font-bold text-sm">
+                  <div className="flex items-center gap-2">
+                    <Star className="w-5 h-5" />
+                    <span>Showcase Your Food</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    <span>Increase Revenue</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    <span>Reach More Customers</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-shrink-0">
+                <Link
+                  href="/onboarding"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-[#39FF14] border-2 border-black text-black font-bold text-lg hover:shadow-[6px_6px_0px_#000] hover:translate-x-[-3px] hover:translate-y-[-3px] active:shadow-none active:translate-x-0 active:translate-y-0 transition-all duration-100"
+                >
+                  <Building2 className="w-6 h-6" />
+                  BECOME A PARTNER
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Restaurant Owner Dashboard Link - Only show for restaurant owners */}
+        {user && user.role === 'RESTAURANT_OWNER' && (
+          <div className="mb-8 bg-black border-4 border-black p-6">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <Building2 className="w-8 h-8 text-[#39FF14]" />
+                  <h2 className="text-2xl lg:text-3xl font-black text-white">
+                    Restaurant Dashboard
+                  </h2>
+                </div>
+                <p className="text-gray-300 font-normal text-lg">
+                  Manage your restaurant, track orders, upload reels, and monitor your business performance.
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <Link
+                  href="/restaurant"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-[#39FF14] border-2 border-black text-black font-bold text-lg hover:shadow-[6px_6px_0px_#000] hover:translate-x-[-3px] hover:translate-y-[-3px] active:shadow-none active:translate-x-0 active:translate-y-0 transition-all duration-100"
+                >
+                  <Building2 className="w-6 h-6" />
+                  GO TO DASHBOARD
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Tab Navigation */}
         <TabNavigation 
           activeTab={activeTab}

@@ -16,43 +16,57 @@ const createReelSchema = z.object({
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const cursor = searchParams.get('cursor');
-  const limit = parseInt(searchParams.get('limit') || '5', 10); // Default to 5 reels per request
+  const limit = parseInt(searchParams.get('limit') || '10', 10);
+  const restaurantId = searchParams.get('restaurantId');
 
   try {
-    const reels = await prisma.reel.findMany({
+    // We build the Prisma query options dynamically
+    const queryOptions = {
       take: limit,
-      ...(cursor && {
-        skip: 1, // Skip the cursor itself
-        cursor: {
-          id: cursor,
-        },
-      }),
+      // Where clause will be added conditionally
+      where: {},
+      // Include related data to show on the frontend
       include: {
-        // Include related data to show on the frontend
         foodItem: {
           select: {
             id: true,
             name: true,
             price: true,
-          }
+          },
         },
         restaurant: {
           select: {
             id: true,
             name: true,
             imageUrl: true,
-          }
-        }
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc', // Show the newest reels first
       },
-    });
+      // Add cursor-based pagination logic if a cursor is present
+      ...(cursor && {
+        skip: 1, // Skip the cursor itself
+        cursor: {
+          id: cursor,
+        },
+      }),
+    };
 
+    // ** This is the new logic **
+    // If a restaurantId is provided in the URL, add it to the 'where' clause
+    if (restaurantId) {
+      queryOptions.where = {
+        restaurantId: restaurantId,
+      };
+    }
+//@ts-ignore
+    const reels = await prisma.reel.findMany(queryOptions);
+
+    // Determine the next cursor for infinite scrolling
     let nextCursor: typeof cursor | null = null;
     if (reels.length === limit) {
-      // If we fetched the number of items we asked for, there might be more.
-      // The next cursor will be the ID of the last item we fetched.
       nextCursor = reels[reels.length - 1].id;
     }
 
@@ -60,10 +74,12 @@ export async function GET(request: Request) {
       reels,
       nextCursor,
     });
-
   } catch (error) {
     console.error('Failed to fetch reels:', error);
-    return NextResponse.json({ error: 'An unexpected error occurred while fetching reels.' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'An unexpected error occurred while fetching reels.' },
+      { status: 500 }
+    );
   }
 }
 
