@@ -10,7 +10,7 @@ const updateStatusSchema = z.object({
 });
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -18,7 +18,7 @@ interface RouteParams {
  * Protected route for RESTAURANT_OWNERs only.
  */
 export async function PUT(request: Request, { params }: RouteParams) {
-  const { id: orderId } = params;
+  const { id: orderId } = await params;
   const headersList = await headers();
   const userId = headersList.get('x-user-id') as string | null;
   const userRole = headersList.get('x-user-role') as Role | string | null;

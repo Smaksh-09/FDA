@@ -8,8 +8,11 @@ import { Role } from '@prisma/client';
 /**
  * GET handler for fetching a single order by its ID.
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const { id: orderId } = params;
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: orderId } = await params;
   const headersList = await headers();
   const userId = headersList.get('x-user-id') as string | null;
   const userRole = headersList.get('x-user-role') as Role | string | null;
