@@ -6,16 +6,15 @@ import { Reel, Comment } from '../../reelBytes/types'
 
 interface ReelInspectorProps {
   reel: Reel
+  onOrderClick?: (reel: Reel) => void
 }
 
-export default function ReelInspector({ reel }: ReelInspectorProps) {
+export default function ReelInspector({ reel, onOrderClick }: ReelInspectorProps) {
   const [quantity, setQuantity] = useState(1)
   const [newComment, setNewComment] = useState('')
   const [showAllComments, setShowAllComments] = useState(false)
 
-  const formatPrice = (price: number): string => {
-    return `$${price.toFixed(2)}`
-  }
+  const formatPrice = (price: number): string => `₹${price.toFixed(2)}`
 
   const getTotalPrice = (): string => {
     return formatPrice(reel.foodItem.price * quantity)
@@ -28,9 +27,8 @@ export default function ReelInspector({ reel }: ReelInspectorProps) {
     }
   }
 
-  const handleAddToCart = () => {
-    // TODO: Implement add to cart functionality
-    alert(`Added ${quantity}x ${reel.foodItem.name} to cart`)
+  const handleOrderNow = () => {
+    onOrderClick?.(reel)
   }
 
   const handleCommentSubmit = (e: React.FormEvent) => {
@@ -112,13 +110,13 @@ export default function ReelInspector({ reel }: ReelInspectorProps) {
             </div>
           </div>
 
-          {/* Buy Now Button */}
+          {/* Order Now Button */}
           <button
-            onClick={handleAddToCart}
+            onClick={handleOrderNow}
             className="w-full py-3 px-4 bg-[#39FF14] border-2 border-black text-black font-bold text-lg hover:neobrutalist-shadow-active active:translate-x-1 active:translate-y-1 transition-all duration-100 flex items-center justify-center gap-2"
           >
             <ShoppingCart className="w-5 h-5" />
-            Add to Cart • {getTotalPrice()}
+            Order Now • {getTotalPrice()}
           </button>
         </div>
 

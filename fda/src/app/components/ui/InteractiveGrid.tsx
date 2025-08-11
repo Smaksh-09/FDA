@@ -35,7 +35,7 @@ export default function InteractiveGrid() {
         // Row 1
         { component: <ExampleButton text="Order Now" variant="secondary" />, span: 'col-span-2' },
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><Search className="w-8 h-8" /></div>, span: 'col-span-1' },
-        { component: <ExampleCard title="Pizza" price="$12.99" />, span: 'col-span-2' },
+    { component: <ExampleCard title="Pizza" price="₹12.99" />, span: 'col-span-2' },
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><Menu className="w-8 h-8" /></div>, span: 'col-span-1' },
         
         // Row 2
@@ -62,9 +62,9 @@ export default function InteractiveGrid() {
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><ShoppingCart className="w-8 h-8" /></div>, span: 'col-span-1' },
         
         // Row 4 - Loading placeholder
-        { component: <ExampleCard title="Burger" price="$8.99" />, span: 'col-span-2' },
+    { component: <ExampleCard title="Burger" price="₹8.99" />, span: 'col-span-2' },
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-gray-300 animate-pulse"><div className="w-20 h-8 bg-gray-400"></div></div>, span: 'col-span-2' },
-        { component: <ExampleCard title="Sushi" price="$15.99" />, span: 'col-span-2' },
+    { component: <ExampleCard title="Sushi" price="₹15.99" />, span: 'col-span-2' },
         
         // Row 5
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><User className="w-8 h-8" /></div>, span: 'col-span-1' },
@@ -80,7 +80,7 @@ export default function InteractiveGrid() {
         // Row 1
         { component: <ExampleButton text="Order Food" variant="secondary" href="/#order-section" />, span: 'col-span-2' },
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><Search className="w-8 h-8" /></div>, span: 'col-span-1' },
-        { component: <ExampleCard title="Pizza" price="$12.99" />, span: 'col-span-2' },
+    { component: <ExampleCard title="Pizza" price="₹12.99" />, span: 'col-span-2' },
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><Menu className="w-8 h-8" /></div>, span: 'col-span-1' },
         
         // Row 2
@@ -107,13 +107,13 @@ export default function InteractiveGrid() {
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><ShoppingCart className="w-8 h-8" /></div>, span: 'col-span-1' },
         
         // Row 4 - Dynamic based on user role
-        { component: <ExampleCard title="Burger" price="$8.99" />, span: 'col-span-2' },
+    { component: <ExampleCard title="Burger" price="₹8.99" />, span: 'col-span-2' },
         ...(user.role === 'USER' ? [
           { component: <ExampleButton text="Become a Partner" variant="primary" isPermanentActive={true} href="/onboarding" />, span: 'col-span-2' }
         ] : [
           { component: <ExampleButton text="Restaurant Dashboard" variant="primary" isPermanentActive={true} href="/restaurant" />, span: 'col-span-2' }
         ]),
-        { component: <ExampleCard title="Sushi" price="$15.99" />, span: 'col-span-2' },
+    { component: <ExampleCard title="Sushi" price="₹15.99" />, span: 'col-span-2' },
         
         // Row 5
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><User className="w-8 h-8" /></div>, span: 'col-span-1' },
@@ -127,7 +127,7 @@ export default function InteractiveGrid() {
         // Row 1
         { component: <ExampleButton text="Order Now" variant="secondary" />, span: 'col-span-2' },
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><Search className="w-8 h-8" /></div>, span: 'col-span-1' },
-        { component: <ExampleCard title="Pizza" price="$12.99" />, span: 'col-span-2' },
+    { component: <ExampleCard title="Pizza" price="₹12.99" />, span: 'col-span-2' },
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><Menu className="w-8 h-8" /></div>, span: 'col-span-1' },
         
         // Row 2
@@ -154,9 +154,9 @@ export default function InteractiveGrid() {
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><ShoppingCart className="w-8 h-8" /></div>, span: 'col-span-1' },
         
         // Row 4
-        { component: <ExampleCard title="Burger" price="$8.99" />, span: 'col-span-2' },
+    { component: <ExampleCard title="Burger" price="₹8.99" />, span: 'col-span-2' },
         { component: <ExampleButton text="Sign Up / Login" variant="primary" isPermanentActive={true} href="/auth/register" />, span: 'col-span-2' },
-        { component: <ExampleCard title="Sushi" price="$15.99" />, span: 'col-span-2' },
+    { component: <ExampleCard title="Sushi" price="₹15.99" />, span: 'col-span-2' },
         
         // Row 5
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><User className="w-8 h-8" /></div>, span: 'col-span-1' },

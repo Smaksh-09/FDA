@@ -19,9 +19,7 @@ export default function ReelPlaylist({ playlist, currentReelId, onReelSelect }: 
     return num.toString()
   }
 
-  const formatPrice = (price: number): string => {
-    return `$${price.toFixed(2)}`
-  }
+  const formatPrice = (price: number): string => `₹${price.toFixed(2)}`
 
   return (
     <div className="h-full bg-black border-2 border-black">

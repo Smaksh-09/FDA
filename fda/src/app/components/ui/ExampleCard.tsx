@@ -27,7 +27,7 @@ export default function ExampleCard({ title, price, isActive = false }: ExampleC
           </div>
         </div>
         <div className="mt-4">
-          <span className="font-black text-2xl text-black">{price}</span>
+          <span className="font-black text-2xl text-black">{price.replace('$', '₹')}</span>
         </div>
       </div>
     </div>

@@ -10,6 +10,7 @@ import MobileMenuDrawer from '../components/ui/MobileMenuDrawer'
 import MobileCommentsModal from '../components/ui/MobileCommentsModal'
 import MobileVideoIndicators from '../components/ui/MobileVideoIndicators'
 import { Reel } from './types'
+import OrderConfirmModal from './OrderConfirmModal'
 
 type ApiReel = {
   id: string
@@ -34,6 +35,7 @@ export default function ReelBytesPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false)
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
@@ -54,7 +56,7 @@ export default function ReelBytesPage() {
     const fetchReels = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch('/api/reels?limit=20', { cache: 'no-store' })
+        const response = await fetch('/api/reels?limit=20', { cache: 'no-store', credentials: 'include' })
         if (!response.ok) throw new Error('Failed to load reels')
         const data: { reels: ApiReel[]; nextCursor?: string | null } = await response.json()
 
@@ -212,6 +214,7 @@ export default function ReelBytesPage() {
                 isMobile={true}
                 onCommentClick={() => setIsCommentsModalOpen(true)}
                 onMenuClick={() => setIsMobileMenuOpen(true)}
+                onOrderClick={() => setIsOrderModalOpen(true)}
               />
             ) : (
               <div className="min-h-screen flex items-center justify-center text-black">Loading...</div>
@@ -253,6 +256,7 @@ export default function ReelBytesPage() {
                       reel={currentReel}
                       isActive={true}
                       isMobile={false}
+                      onOrderClick={() => setIsOrderModalOpen(true)}
                     />
                   ) : (
                     <div className="w-full h-full bg-black flex items-center justify-center text-white border-2 border-black">
@@ -266,7 +270,7 @@ export default function ReelBytesPage() {
             {/* Right Column - Inspector */}
             <aside className="w-96 flex-shrink-0">
               {currentReel ? (
-                <ReelInspector reel={currentReel} />
+                <ReelInspector reel={currentReel} onOrderClick={() => setIsOrderModalOpen(true)} />
               ) : (
                 <div className="h-full bg-[#F5F5F5] border-2 border-black flex items-center justify-center">Loading...</div>
               )}
@@ -290,6 +294,15 @@ export default function ReelBytesPage() {
             onClose={() => setIsCommentsModalOpen(false)}
           />
         </>
+      )}
+
+      {/* Order Confirmation Modal */}
+      {currentReel && (
+        <OrderConfirmModal
+          reel={currentReel}
+          isOpen={isOrderModalOpen}
+          onClose={() => setIsOrderModalOpen(false)}
+        />
       )}
     </div>
   )

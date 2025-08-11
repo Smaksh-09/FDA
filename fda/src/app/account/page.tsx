@@ -1,20 +1,86 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Home, Building2, Star, TrendingUp, Users } from 'lucide-react'
 import TabNavigation from '../components/ui/TabNavigation'
 import ProfileTab from '../components/ui/ProfileTab'
 import OrderHistoryTab from '../components/ui/OrderHistoryTab'
 import AddressesTab from '../components/ui/AddressesTab'
-import { dummyAccountData } from './dummyData'
-import { TabType, UserProfile, SavedAddress } from './types'
+import { TabType, UserProfile, SavedAddress, OrderHistoryItem } from './types'
 import { useUserStore } from '@/store/useUserStore'
 
 export default function AccountPage() {
   const { user } = useUserStore()
   const [activeTab, setActiveTab] = useState<TabType>('PROFILE')
-  const [accountData, setAccountData] = useState(dummyAccountData)
+  const [accountData, setAccountData] = useState({
+    profile: {
+      id: '',
+      name: '',
+      email: '',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    orderHistory: [] as OrderHistoryItem[],
+    addresses: [] as SavedAddress[],
+  })
+
+  // Load real user data
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const [meRes, ordersRes, addrRes] = await Promise.all([
+          fetch('/api/auth/me', { cache: 'no-store' }),
+          fetch('/api/orders', { cache: 'no-store' }),
+          fetch('/api/addresses', { cache: 'no-store' }),
+        ])
+
+        const me = meRes.ok ? await meRes.json() : null
+        const orders = ordersRes.ok ? await ordersRes.json() : []
+        const addresses = addrRes.ok ? (await addrRes.json()).addresses : []
+
+        setAccountData(prev => ({
+          ...prev,
+          profile: {
+            id: me?.id || '',
+            name: me?.name || '',
+            email: me?.email || '',
+            createdAt: me?.createdAt ? new Date(me.createdAt) : new Date(),
+            updatedAt: me?.updatedAt ? new Date(me.updatedAt) : new Date(),
+          },
+          orderHistory: (orders || []).map((o: any) => ({
+            id: o.id,
+            orderNumber: o.id.slice(0, 8).toUpperCase(),
+            restaurantName: o.restaurant?.name || 'Restaurant',
+            restaurantId: o.restaurantId,
+            items: (o.items || []).map((it: any) => ({
+              id: it.id,
+              name: it.foodItem?.name || 'Item',
+              quantity: it.quantity,
+              price: it.priceAtTimeOfOrder,
+            })),
+            totalAmount: o.totalPrice,
+            status: o.status,
+            placedAt: new Date(o.createdAt),
+            deliveredAt: o.status === 'DELIVERED' ? new Date(o.updatedAt) : undefined,
+          })),
+          addresses: addresses.map((a: any) => ({
+            id: a.id,
+            title: a.isDefault ? 'Default' : 'Saved Address',
+            fullAddress: `${a.street}, ${a.city}, ${a.state} ${a.zipCode}`,
+            street: a.street,
+            city: a.city,
+            state: a.state,
+            pincode: a.zipCode,
+            isDefault: a.isDefault,
+            createdAt: new Date(),
+          })),
+        }))
+      } catch (e) {
+        // Silent fail; leaves empty states
+      }
+    })()
+  }, [])
 
   const handleProfileUpdate = (updatedProfile: Partial<UserProfile>) => {
     setAccountData(prev => ({

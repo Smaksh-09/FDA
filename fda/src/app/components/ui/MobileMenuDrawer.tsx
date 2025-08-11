@@ -13,9 +13,7 @@ interface MobileMenuDrawerProps {
 export default function MobileMenuDrawer({ reel, isOpen, onClose }: MobileMenuDrawerProps) {
   const [quantity, setQuantity] = useState(1)
 
-  const formatPrice = (price: number): string => {
-    return `$${price.toFixed(2)}`
-  }
+const formatPrice = (price: number): string => `₹${price.toFixed(2)}`
 
   const getTotalPrice = (): string => {
     return formatPrice(reel.foodItem.price * quantity)

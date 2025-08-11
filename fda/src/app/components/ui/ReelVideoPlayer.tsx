@@ -10,6 +10,7 @@ interface ReelVideoPlayerProps {
   onCommentClick?: () => void
   onMenuClick?: () => void
   isMobile?: boolean
+  onOrderClick?: (reel: Reel) => void
 }
 
 export default function ReelVideoPlayer({ 
@@ -17,7 +18,8 @@ export default function ReelVideoPlayer({
   isActive, 
   onCommentClick, 
   onMenuClick, 
-  isMobile = false 
+  isMobile = false,
+  onOrderClick,
 }: ReelVideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
@@ -172,7 +174,7 @@ export default function ReelVideoPlayer({
             <div className="mb-3 bg-black bg-opacity-60 p-3 border-2 border-white">
               <p className="text-[#39FF14] font-bold text-sm">{reel.restaurant.name}</p>
               <p className="text-white font-bold text-lg">{reel.foodItem.name}</p>
-              <p className="text-[#39FF14] font-bold text-xl">${reel.foodItem.price.toFixed(2)}</p>
+              <p className="text-[#39FF14] font-bold text-xl">₹{reel.foodItem.price.toFixed(2)}</p>
             </div>
           )}
           
@@ -182,6 +184,17 @@ export default function ReelVideoPlayer({
               {reel.caption}
             </p>
           </div>
+
+          {/* Order Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onOrderClick?.(reel)
+            }}
+            className="px-4 py-2 bg-[#39FF14] border-2 border-white text-black font-bold hover:neobrutalist-shadow transition-all"
+          >
+            [ORDER NOW – ₹{reel.foodItem.price.toFixed(2)}]
+          </button>
         </div>
       </div>
 

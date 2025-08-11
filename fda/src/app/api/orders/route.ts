@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { headers } from 'next/headers';
-//@ts-ignore
 import { Role } from '@prisma/client';
 
 // Zod schema for validating the "Buy Now" request
@@ -17,9 +16,8 @@ const createOrderSchema = z.object({
  */
 export async function POST(request: Request) {
   const headersList = await headers();
-  //@ts-ignore
-  const userId = headersList.get('x-user-id');
-  const userRole = headersList.get('x-user-role');
+  const userId = headersList.get('x-user-id') as string | null;
+  const userRole = headersList.get('x-user-role') as Role | string | null;
 
   // Authorization: Only authenticated USERs can create orders.
   if (!userId || userRole !== Role.USER) {
@@ -68,7 +66,6 @@ export async function POST(request: Request) {
     }
 
     // Create the order using a transaction
-    //@ts-ignore
     const newOrder = await prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
         data: {
@@ -96,5 +93,64 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Failed to create order:', error);
     return NextResponse.json({ error: 'An unexpected error occurred while creating the order.' }, { status: 500 });
+  }
+}
+/**
+ * GET handler for fetching order history.
+ * Behavior depends on the user's role.
+ */
+export async function GET(request: Request) {
+  const headersList = await headers();
+  const userId = headersList.get('x-user-id') as string | null;
+  const userRole = headersList.get('x-user-role') as Role | string | null;
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
+  }
+
+  try {
+    let orders;
+    const includeOptions = {
+      items: {
+        include: {
+          foodItem: {
+            select: { name: true, imageUrl: true }
+          }
+        }
+      },
+      restaurant: {
+        select: { name: true }
+      }
+    };
+
+    if (userRole === Role.USER || userRole === 'USER') {
+      orders = await prisma.order.findMany({
+        where: { userId: userId },
+        include: includeOptions,
+        orderBy: { createdAt: 'desc' },
+      });
+    } else if (userRole === Role.RESTAURANT_OWNER || userRole === 'RESTAURANT_OWNER') {
+      const restaurant = await prisma.restaurant.findUnique({ where: { ownerId: userId }});
+      if (!restaurant) {
+        return NextResponse.json({ orders: [] }); // Owner might not have a restaurant yet
+      }
+      orders = await prisma.order.findMany({
+        where: { restaurantId: restaurant.id },
+        include: includeOptions,
+        orderBy: { createdAt: 'desc' },
+      });
+    } else {
+      // For ADMIN or other roles in the future
+      orders = await prisma.order.findMany({ 
+        include: includeOptions,
+        orderBy: { createdAt: 'desc' },
+      });
+    }
+
+    return NextResponse.json(orders);
+
+  } catch (error) {
+    console.error('Failed to fetch orders:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred while fetching orders.' }, { status: 500 });
   }
 }

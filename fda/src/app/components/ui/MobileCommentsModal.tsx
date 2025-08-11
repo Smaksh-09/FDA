@@ -69,7 +69,7 @@ export default function MobileCommentsModal({ reel, isOpen, onClose }: MobileCom
               <p className="text-white font-bold text-base truncate">{reel.foodItem.name}</p>
             </div>
             <div className="text-right">
-              <p className="text-[#39FF14] font-bold text-lg">${reel.foodItem.price.toFixed(2)}</p>
+              <p className="text-[#39FF14] font-bold text-lg">₹{reel.foodItem.price.toFixed(2)}</p>
             </div>
           </div>
         </div>
