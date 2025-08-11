@@ -75,7 +75,7 @@ export default function OrderConfirmModal({ reel, isOpen, onClose }: OrderConfir
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
+      <div className="absolute inset-0 backdrop-blur-md" onClick={onClose} />
 
       {/* Modal */}
       <div className="relative bg-white border-2 border-black w-full max-w-lg mx-4 neobrutalist-shadow">
