@@ -17,6 +17,8 @@ export async function middleware(request: NextRequest) {
     '/api/food-items',
     '/api/orders',
     '/api/addresses',
+    '/api/addresses/',
+    '/api/addresses/',
     '/api/auth/me'
   ];
 

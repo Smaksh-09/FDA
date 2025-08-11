@@ -30,9 +30,9 @@ export default function AccountPage() {
     ;(async () => {
       try {
         const [meRes, ordersRes, addrRes] = await Promise.all([
-          fetch('/api/auth/me', { cache: 'no-store' }),
-          fetch('/api/orders', { cache: 'no-store' }),
-          fetch('/api/addresses', { cache: 'no-store' }),
+          fetch('/api/auth/me', { cache: 'no-store', credentials: 'include' }),
+          fetch('/api/orders', { cache: 'no-store', credentials: 'include' }),
+          fetch('/api/addresses', { cache: 'no-store', credentials: 'include' }),
         ])
 
         const me = meRes.ok ? await meRes.json() : null

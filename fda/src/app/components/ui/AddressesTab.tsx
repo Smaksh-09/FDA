@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { Plus, Edit, Trash2, MapPin, Star } from 'lucide-react'
+import { Plus, Trash2, MapPin, Star } from 'lucide-react'
 import { SavedAddress } from '../../account/types'
 
 interface AddressesTabProps {
@@ -64,72 +64,51 @@ export default function AddressesTab({ addresses, onAddressUpdate }: AddressesTa
     })
   }
 
-  const handleEdit = (address: SavedAddress) => {
-    setEditingId(address.id)
-    setIsAddingNew(false)
-    setFormData({
-      title: address.title,
-      street: address.street,
-      city: address.city,
-      state: address.state,
-      pincode: address.pincode,
-      isDefault: address.isDefault
-    })
-  }
+  // Editing removed by requirement
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.title.trim() || !formData.street.trim() || !formData.city.trim() || 
         !formData.state.trim() || !formData.pincode.trim()) {
       alert('Please fill in all fields')
       return
     }
 
-    const fullAddress = `${formData.street}, ${formData.city}, ${formData.state} ${formData.pincode}`
-    
-    let updatedAddresses = [...addresses]
-
-    if (isAddingNew) {
-      // Add new address
-      const newAddress: SavedAddress = {
-        id: `addr-${Date.now()}`,
-        title: formData.title.trim(),
-        fullAddress,
-        street: formData.street.trim(),
-        city: formData.city.trim(),
-        state: formData.state.trim(),
-        pincode: formData.pincode.trim(),
-        isDefault: formData.isDefault,
-        createdAt: new Date()
-      }
-
-      // If this is being set as default, unset others
-      if (formData.isDefault) {
-        updatedAddresses = updatedAddresses.map(addr => ({ ...addr, isDefault: false }))
-      }
-
-      updatedAddresses.push(newAddress)
-    } else if (editingId) {
-      // Update existing address
-      updatedAddresses = updatedAddresses.map(addr => {
-        if (addr.id === editingId) {
-          return {
-            ...addr,
-            title: formData.title.trim(),
-            fullAddress,
-            street: formData.street.trim(),
-            city: formData.city.trim(),
-            state: formData.state.trim(),
-            pincode: formData.pincode.trim(),
-            isDefault: formData.isDefault
-          }
-        }
-        // If this address is being set as default, unset others
-        return formData.isDefault ? { ...addr, isDefault: false } : addr
+    try {
+      const res = await fetch('/api/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          street: formData.street.trim(),
+          city: formData.city.trim(),
+          state: formData.state.trim(),
+          zipCode: formData.pincode.trim(),
+          country: 'India',
+          isDefault: formData.isDefault,
+        }),
       })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || 'Failed to save address')
+      }
+      const listRes = await fetch('/api/addresses', { credentials: 'include', cache: 'no-store' })
+      const data = await listRes.json()
+      const updated = (data.addresses || []).map((a: any) => ({
+        id: a.id,
+        title: a.isDefault ? 'Default' : 'Saved Address',
+        fullAddress: `${a.street}, ${a.city}, ${a.state} ${a.zipCode}`,
+        street: a.street,
+        city: a.city,
+        state: a.state,
+        pincode: a.zipCode,
+        isDefault: a.isDefault,
+        createdAt: new Date(),
+      }))
+      onAddressUpdate(updated)
+      resetForm()
+    } catch (e: any) {
+      alert(e.message || 'Failed to save address')
     }
-
-    onAddressUpdate(updatedAddresses)
-    resetForm()
   }
 
   const handleDelete = (addressId: string) => {
@@ -139,12 +118,27 @@ export default function AddressesTab({ addresses, onAddressUpdate }: AddressesTa
     }
   }
 
-  const setAsDefault = (addressId: string) => {
-    const updatedAddresses = addresses.map(addr => ({
-      ...addr,
-      isDefault: addr.id === addressId
-    }))
-    onAddressUpdate(updatedAddresses)
+  const setAsDefault = async (addressId: string) => {
+    try {
+      const res = await fetch(`/api/addresses/${addressId}/default`, { method: 'PATCH', credentials: 'include' })
+      if (!res.ok) throw new Error('Failed to set default address')
+      const listRes = await fetch('/api/addresses', { credentials: 'include', cache: 'no-store' })
+      const data = await listRes.json()
+      const updated = (data.addresses || []).map((a: any) => ({
+        id: a.id,
+        title: a.isDefault ? 'Default' : 'Saved Address',
+        fullAddress: `${a.street}, ${a.city}, ${a.state} ${a.zipCode}`,
+        street: a.street,
+        city: a.city,
+        state: a.state,
+        pincode: a.zipCode,
+        isDefault: a.isDefault,
+        createdAt: new Date(),
+      }))
+      onAddressUpdate(updated)
+    } catch (e: any) {
+      alert(e.message || 'Failed to set default address')
+    }
   }
 
   return (
@@ -306,14 +300,6 @@ export default function AddressesTab({ addresses, onAddressUpdate }: AddressesTa
             {/* Action Buttons */}
             <div className="flex justify-between items-center">
               <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(address)}
-                  disabled={isAddingNew || editingId !== null}
-                  className="p-2 bg-white border border-white text-black hover:bg-[#39FF14] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Edit Address"
-                >
-                  <Edit className="w-4 h-4" />
-                </button>
                 <button
                   onClick={() => handleDelete(address.id)}
                   disabled={isAddingNew || editingId !== null}

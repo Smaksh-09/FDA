@@ -3,14 +3,12 @@ import prisma from '@/lib/prisma';
 import { headers } from 'next/headers';
 import { Role } from '@prisma/client';
 
-interface RouteParams {
-  params: { id: string };
-}
+
 
 /**
  * GET handler for fetching a single order by its ID.
  */
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   const { id: orderId } = params;
   const headersList = await headers();
   const userId = headersList.get('x-user-id') as string | null;
