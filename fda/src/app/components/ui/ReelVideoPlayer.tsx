@@ -25,16 +25,35 @@ export default function ReelVideoPlayer({
   const [showControls, setShowControls] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  // Auto play when component becomes active
+  // Auto play/pause when component becomes active
   useEffect(() => {
-    if (videoRef.current) {
-      if (isActive) {
-        videoRef.current.play()
-        setIsPlaying(true)
-      } else {
-        videoRef.current.pause()
-        setIsPlaying(false)
+    const video = videoRef.current
+    if (!video) return
+
+    let cancelled = false
+    const safePlay = async () => {
+      try {
+        if (!video.isConnected || !document.contains(video)) return
+        const playPromise = video.play()
+        if (playPromise && typeof playPromise.then === 'function') {
+          await playPromise
+        }
+        if (!cancelled) setIsPlaying(true)
+      } catch (err) {
+        // Autoplay may be blocked or interrupted; keep paused state
+        if (!cancelled) setIsPlaying(!video.paused)
       }
+    }
+
+    if (isActive) {
+      safePlay()
+    } else {
+      video.pause()
+      setIsPlaying(false)
+    }
+
+    return () => {
+      cancelled = true
     }
   }, [isActive])
 
@@ -85,12 +104,13 @@ export default function ReelVideoPlayer({
         ref={videoRef}
         className="w-full h-full object-cover"
         muted={isMuted}
+        autoPlay={isActive}
         loop
         playsInline
         onLoadedData={() => {
           if (isActive && videoRef.current) {
-            videoRef.current.play()
-            setIsPlaying(true)
+            const v = videoRef.current
+            v.play().then(() => setIsPlaying(true)).catch(() => {})
           }
         }}
       >

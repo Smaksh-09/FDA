@@ -15,28 +15,32 @@ export async function GET(request: Request) {
       }, { status: 500 });
     }
 
-    // 1. Get the token from the cookie
-    const cookieStore = cookies();
-    //@ts-ignore
-    const token = cookieStore.get('token')?.value;
+    // 1. Get the token from the cookie (await required for dynamic API)
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value as string | undefined;
 
     if (!token) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    // 2. Verify the token
-    let decoded;
+    // 2. Verify the token and extract payload
+    let userId: string | undefined
     try {
-      //@ts-ignore
-      decoded = jwt.verify(token, JWT_SECRET) as { userId: string, role: string };
+      const decoded = jwt.verify(token!, JWT_SECRET) as jwt.JwtPayload | string;
+      if (typeof decoded !== 'string') {
+        userId = decoded.userId as string | undefined
+      }
     } catch (err) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    // 3. Find the user in the database
+    // 3. Ensure payload has userId and fetch user
+    if (!userId) {
+      return NextResponse.json({ error: 'Invalid token payload' }, { status: 401 });
+    }
+
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      // Select the fields you want to return, excluding the password
+      where: { id: userId! },
       select: {
         id: true,
         email: true,

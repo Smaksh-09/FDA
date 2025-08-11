@@ -9,12 +9,29 @@ import ReelInspector from '../components/ui/ReelInspector'
 import MobileMenuDrawer from '../components/ui/MobileMenuDrawer'
 import MobileCommentsModal from '../components/ui/MobileCommentsModal'
 import MobileVideoIndicators from '../components/ui/MobileVideoIndicators'
-import { dummyData, dummyReels } from './dummyData'
 import { Reel } from './types'
 
+type ApiReel = {
+  id: string
+  videoUrl: string
+  caption?: string | null
+  createdAt: string
+  foodItem: {
+    id: string
+    name: string
+    price: number
+  }
+  restaurant: {
+    id: string
+    name: string
+    imageUrl?: string | null
+  }
+}
+
 export default function ReelBytesPage() {
-  const [currentReel, setCurrentReel] = useState<Reel>(dummyData.currentReel)
-  const [playlist, setPlaylist] = useState<Reel[]>(dummyData.playlist)
+  const [currentReel, setCurrentReel] = useState<Reel | null>(null)
+  const [playlist, setPlaylist] = useState<Reel[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -32,13 +49,65 @@ export default function ReelBytesPage() {
     return () => window.removeEventListener('resize', checkIsMobile)
   }, [])
 
+  // Fetch reels from backend
+  useEffect(() => {
+    const fetchReels = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch('/api/reels?limit=20', { cache: 'no-store' })
+        if (!response.ok) throw new Error('Failed to load reels')
+        const data: { reels: ApiReel[]; nextCursor?: string | null } = await response.json()
+
+        if (data.reels && data.reels.length > 0) {
+          const mapped: Reel[] = data.reels.map((r) => ({
+            id: r.id,
+            videoUrl: r.videoUrl,
+            caption: r.caption ?? '',
+            restaurant: {
+              id: r.restaurant.id,
+              name: r.restaurant.name,
+              logoUrl: r.restaurant.imageUrl ?? '/placeholder-restaurant.jpg',
+              rating: 4.8, // placeholder until backend provides
+              deliveryTime: '15-25 min', // placeholder until backend provides
+            },
+            foodItem: {
+              id: r.foodItem.id,
+              name: r.foodItem.name,
+              price: r.foodItem.price,
+              description: '',
+              imageUrl: '/placeholder-food.jpg',
+            },
+            comments: [],
+            likes: 0,
+            views: 0,
+            createdAt: r.createdAt,
+          }))
+
+          setCurrentReel(mapped[0])
+          setPlaylist(mapped.slice(1))
+        } else {
+          setCurrentReel(null)
+          setPlaylist([])
+        }
+      } catch (err) {
+        console.error(err)
+        setCurrentReel(null)
+        setPlaylist([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchReels()
+  }, [])
+
   const handleReelSelect = (selectedReel: Reel) => {
     // Update current reel
     setCurrentReel(selectedReel)
     
     // Remove selected reel from playlist and add current reel to the end
     const newPlaylist = playlist.filter(reel => reel.id !== selectedReel.id)
-    newPlaylist.push(currentReel)
+    if (currentReel) newPlaylist.push(currentReel)
     setPlaylist(newPlaylist)
   }
 
@@ -50,7 +119,7 @@ export default function ReelBytesPage() {
 
   const goToPreviousReel = () => {
     // Find current reel index in the full list
-    const allReels = [currentReel, ...playlist]
+    const allReels = currentReel ? [currentReel, ...playlist] : [...playlist]
     const currentIndex = 0 // Current reel is always at index 0
     
     if (currentIndex < allReels.length - 1) {
@@ -136,13 +205,17 @@ export default function ReelBytesPage() {
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            <ReelVideoPlayer 
-              reel={currentReel}
-              isActive={true}
-              isMobile={true}
-              onCommentClick={() => setIsCommentsModalOpen(true)}
-              onMenuClick={() => setIsMobileMenuOpen(true)}
-            />
+            {currentReel ? (
+              <ReelVideoPlayer 
+                reel={currentReel}
+                isActive={true}
+                isMobile={true}
+                onCommentClick={() => setIsCommentsModalOpen(true)}
+                onMenuClick={() => setIsMobileMenuOpen(true)}
+              />
+            ) : (
+              <div className="min-h-screen flex items-center justify-center text-black">Loading...</div>
+            )}
             
             {/* Mobile UI Overlays */}
             <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
@@ -166,32 +239,44 @@ export default function ReelBytesPage() {
             <aside className="w-80 flex-shrink-0">
               <ReelPlaylist 
                 playlist={playlist}
-                currentReelId={currentReel.id}
+                currentReelId={currentReel?.id ?? ''}
                 onReelSelect={handleReelSelect}
               />
             </aside>
 
-            {/* Center Column - Video Player */}
-            <section className="flex-1 p-4">
-              <div className="h-full">
-                <ReelVideoPlayer 
-                  reel={currentReel}
-                  isActive={true}
-                  isMobile={false}
-                />
+            {/* Center Column - Video Player (letterboxed, centered) */}
+            <section className="flex-1 p-4 bg-black">
+              <div className="h-full w-full flex items-center justify-center">
+                <div className="relative w-full max-w-[420px] aspect-[9/16]">
+                  {currentReel ? (
+                    <ReelVideoPlayer 
+                      reel={currentReel}
+                      isActive={true}
+                      isMobile={false}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-black flex items-center justify-center text-white border-2 border-black">
+                      Loading...
+                    </div>
+                  )}
+                </div>
               </div>
             </section>
 
             {/* Right Column - Inspector */}
             <aside className="w-96 flex-shrink-0">
-              <ReelInspector reel={currentReel} />
+              {currentReel ? (
+                <ReelInspector reel={currentReel} />
+              ) : (
+                <div className="h-full bg-[#F5F5F5] border-2 border-black flex items-center justify-center">Loading...</div>
+              )}
             </aside>
           </>
         )}
       </main>
 
       {/* Mobile Components */}
-      {isMobile && (
+      {isMobile && currentReel && (
         <>
           <MobileMenuDrawer
             reel={currentReel}
