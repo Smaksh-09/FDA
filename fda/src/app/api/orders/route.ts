@@ -120,6 +120,9 @@ export async function GET(request: Request) {
       },
       restaurant: {
         select: { name: true }
+      },
+      user: {
+        select: { name: true, email: true }
       }
     };
 

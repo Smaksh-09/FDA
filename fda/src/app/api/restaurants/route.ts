@@ -62,3 +62,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'An unexpected error occurred while creating the restaurant.' }, { status: 500 });
   }
 }
+
+/**
+ * GET handler for fetching restaurant data for the current owner
+ */
+export async function GET(request: Request) {
+  const headersList = await headers();
+  const userId = headersList.get('x-user-id') as string | null;
+  const userRole = headersList.get('x-user-role') as string | null;
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
+  }
+
+  if (userRole !== 'RESTAURANT_OWNER') {
+    return NextResponse.json({ error: 'Only restaurant owners can access this resource.' }, { status: 403 });
+  }
+
+  try {
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { ownerId: userId },
+    });
+
+    if (!restaurant) {
+      return NextResponse.json({ error: 'Restaurant not found for this owner.' }, { status: 404 });
+    }
+
+    return NextResponse.json(restaurant);
+  } catch (error) {
+    console.error('Failed to fetch restaurant:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred while fetching restaurant.' }, { status: 500 });
+  }
+}
