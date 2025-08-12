@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, MapPin, CreditCard, Check, Plus } from 'lucide-react'
+import { ArrowLeft, MapPin, CreditCard, Check, Plus, Menu, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useUserStore } from '@/store/useUserStore'
 
@@ -35,6 +35,7 @@ export default function CartPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
   const [orderComplete, setOrderComplete] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Load cart from localStorage and fetch addresses
   useEffect(() => {
@@ -218,8 +219,27 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
+      {/* Mobile Toggle Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="fixed top-4 left-4 z-50 lg:hidden p-3 bg-lime-400 border-2 border-black"
+        style={{ boxShadow: '2px 2px 0px #000' }}
+      >
+        {isMobileMenuOpen ? <X className="w-5 h-5 text-black" /> : <Menu className="w-5 h-5 text-black" />}
+      </button>
+
+      {/* Mobile Backdrop */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Left Panel - Mission Checklist */}
-      <div className="fixed left-0 top-0 h-full w-96 bg-black border-r-2 border-black z-40 flex flex-col">
+      <div className={`fixed left-0 top-0 h-full w-96 bg-black border-r-2 border-black z-40 flex flex-col transition-transform duration-300 ease-in-out ${
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`}>
         {/* Header */}
         <div className="p-6 border-b-2 border-lime-400">
           <motion.button
@@ -232,9 +252,17 @@ export default function CartPage() {
             <ArrowLeft className="w-5 h-5 text-black" />
           </motion.button>
           
-          <h1 className="text-3xl font-extrabold text-lime-400 mb-2">
-            MISSION CHECKLIST
-          </h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-3xl font-extrabold text-lime-400">
+              MISSION CHECKLIST
+            </h1>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="lg:hidden p-2 hover:bg-gray-800 rounded transition-colors"
+            >
+              <X className="w-5 h-5 text-lime-400" />
+            </button>
+          </div>
           <div className="text-lime-400 text-sm">
             Final confirmation terminal
           </div>
@@ -340,8 +368,8 @@ export default function CartPage() {
       </div>
 
       {/* Right Panel - Cart Items Details */}
-      <div className="flex-1 ml-96">
-        <div className="h-screen overflow-y-auto bg-gray-100 p-8">
+      <div className="flex-1 lg:ml-96">
+        <div className="h-screen overflow-y-auto bg-gray-100 p-4 lg:p-8 pt-16 lg:pt-8">
           {/* Page Title */}
           <div className="mb-8">
             <h2 className="text-4xl font-extrabold text-black mb-2">

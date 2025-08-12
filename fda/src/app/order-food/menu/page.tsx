@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Plus, Minus, ShoppingCart } from 'lucide-react'
+import { ArrowLeft, Plus, Minus, ShoppingCart, Menu, X } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useUserStore } from '@/store/useUserStore'
 import { Suspense } from 'react'
@@ -46,6 +46,7 @@ function RestaurantMenuContent() {
   const [cart, setCart] = useState<Record<string, CartItem>>({})
   const [activeCategory, setActiveCategory] = useState<string>('')
   const [cartPulse, setCartPulse] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   
   // Refs for scroll detection
   const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -244,8 +245,27 @@ function RestaurantMenuContent() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
+      {/* Mobile Toggle Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="fixed top-4 left-4 z-50 lg:hidden p-3 bg-lime-400 border-2 border-black"
+        style={{ boxShadow: '2px 2px 0px #000' }}
+      >
+        {isMobileMenuOpen ? <X className="w-5 h-5 text-black" /> : <Menu className="w-5 h-5 text-black" />}
+      </button>
+
+      {/* Mobile Backdrop */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Left Panel - The Index */}
-      <div className="fixed left-0 top-0 h-full w-80 bg-black border-r-2 border-black z-40 flex flex-col">
+      <div className={`fixed left-0 top-0 h-full w-80 bg-black border-r-2 border-black z-40 flex flex-col transition-transform duration-300 ease-in-out ${
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`}>
         {/* Header with Back Button */}
         <div className="p-6 border-b-2 border-lime-400">
           <motion.button
@@ -258,9 +278,17 @@ function RestaurantMenuContent() {
             <ArrowLeft className="w-5 h-5 text-black" />
           </motion.button>
           
-          <h1 className="text-2xl font-extrabold text-lime-400 mb-2">
-            {restaurant.name.toUpperCase()}
-          </h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-2xl font-extrabold text-lime-400">
+              {restaurant.name.toUpperCase()}
+            </h1>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="lg:hidden p-2 hover:bg-gray-800 rounded transition-colors"
+            >
+              <X className="w-5 h-5 text-lime-400" />
+            </button>
+          </div>
           <div className="text-lime-400 text-sm">
             ⭐ 4.2 • {restaurant.description}
           </div>
@@ -300,10 +328,10 @@ function RestaurantMenuContent() {
       </div>
 
       {/* Right Panel - The Content */}
-      <div className="flex-1 ml-80">
+      <div className="flex-1 lg:ml-80">
         <div 
           ref={scrollContainerRef}
-          className="h-screen overflow-y-auto bg-gray-100"
+          className="h-screen overflow-y-auto bg-gray-100 pt-16 lg:pt-0"
         >
           {categories.map((category) => (
             <div key={category} className="relative">

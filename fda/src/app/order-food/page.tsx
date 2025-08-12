@@ -40,7 +40,7 @@ export default function OrderFoodPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [cartCount, setCartCount] = useState(0)
   const [isFilteringAnimation, setIsFilteringAnimation] = useState(false)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false) // Default closed on mobile
 
   // Fetch restaurants data
   const fetchRestaurants = async () => {
@@ -58,8 +58,31 @@ export default function OrderFoodPage() {
     }
   }
 
+  // Load cart count from localStorage
+  const loadCartCount = () => {
+    try {
+      const savedCart = localStorage.getItem('reelbites-cart')
+      if (savedCart) {
+        const cartItems = JSON.parse(savedCart)
+        const totalItems = cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0)
+        setCartCount(totalItems)
+      }
+    } catch (error) {
+      console.error('Failed to load cart:', error)
+    }
+  }
+
   useEffect(() => {
     fetchRestaurants()
+    loadCartCount()
+    
+    // Listen for cart updates
+    const handleStorageChange = () => {
+      loadCartCount()
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
   // Filter logic
@@ -123,16 +146,32 @@ export default function OrderFoodPage() {
         {isSidebarOpen ? <X className="w-5 h-5 text-black" /> : <Menu className="w-5 h-5 text-black" />}
       </button>
 
+      {/* Mobile Backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Fixed Filter Sidebar */}
-      <div className={`fixed left-0 top-0 h-full w-80 bg-lime-400 border-r-2 border-black z-40 overflow-y-auto transition-transform duration-300 ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0`}>
+      <div className={`fixed left-0 top-0 h-full w-80 bg-lime-400 border-r-2 border-black z-40 overflow-y-auto transition-transform duration-300 ease-in-out ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`}>
         <div className="p-6">
           {/* Sidebar Header */}
           <div className="mb-8">
-            <h2 className="text-2xl font-extrabold text-black mb-2">
-              FILTER & SEARCH
-            </h2>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-2xl font-extrabold text-black">
+                FILTER & SEARCH
+              </h2>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="lg:hidden p-2 hover:bg-black hover:text-lime-400 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
             <div className="w-full h-1 bg-black"></div>
           </div>
 
@@ -141,12 +180,23 @@ export default function OrderFoodPage() {
             <motion.div
               whileHover={{ x: 2, y: 2 }}
               whileTap={{ scale: 0.95 }}
-              className="w-full p-4 bg-black border-2 border-black cursor-pointer flex items-center justify-between"
+              onClick={() => {
+                if (cartCount > 0) {
+                  router.push('/order-food/cart')
+                }
+              }}
+              className={`w-full p-4 border-2 border-black flex items-center justify-between transition-all ${
+                cartCount > 0 
+                  ? 'bg-black cursor-pointer hover:bg-gray-800' 
+                  : 'bg-gray-300 cursor-not-allowed'
+              }`}
               style={{ boxShadow: '4px 4px 0px #000' }}
             >
               <div className="flex items-center gap-3">
-                <ShoppingCart className="w-6 h-6 text-lime-400" />
-                <span className="font-bold text-lime-400">YOUR CART</span>
+                <ShoppingCart className={`w-6 h-6 ${cartCount > 0 ? 'text-lime-400' : 'text-gray-500'}`} />
+                <span className={`font-bold ${cartCount > 0 ? 'text-lime-400' : 'text-gray-500'}`}>
+                  {cartCount > 0 ? 'VIEW CART' : 'YOUR CART'}
+                </span>
               </div>
               {cartCount > 0 && (
                 <div className="w-8 h-8 bg-lime-400 border-2 border-lime-400 flex items-center justify-center">
@@ -218,7 +268,7 @@ export default function OrderFoodPage() {
       </div>
 
       {/* Scrolling Marquee */}
-      <div className="fixed top-0 left-0 lg:left-80 right-0 h-12 bg-black border-b-2 border-black z-30 overflow-hidden">
+      <div className="fixed top-0 left-0 lg:left-80 right-0 h-12 bg-black border-b-2 border-black z-20 overflow-hidden">
         <motion.div
           animate={{ x: [0, -2000] }}
           transition={{
@@ -235,7 +285,7 @@ export default function OrderFoodPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-80 mt-12 relative">
+      <div className="flex-1 lg:ml-80 mt-12 relative min-h-screen">
         {/* Massive Background Title */}
         <div className="absolute top-8 left-0 right-0 z-10 pointer-events-none overflow-hidden">
           <h1 className="text-[8rem] lg:text-[10rem] xl:text-[12rem] font-extrabold text-black opacity-5 leading-none select-none whitespace-nowrap">
