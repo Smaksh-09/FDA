@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Plus, Minus, ShoppingCart } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useUserStore } from '@/store/useUserStore'
+import { Suspense } from 'react'
 
 interface FoodItem {
   id: string
@@ -35,6 +36,7 @@ interface CartItem {
 
 export default function RestaurantMenuPage() {
   const router = useRouter()
+
   const searchParams = useSearchParams()
   const { user } = useUserStore()
   const restaurantId = searchParams.get('id')
@@ -219,6 +221,7 @@ export default function RestaurantMenuPage() {
   }
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <div className="min-h-screen bg-gray-100 flex">
       {/* Left Panel - The Index */}
       <div className="fixed left-0 top-0 h-full w-80 bg-black border-r-2 border-black z-40 flex flex-col">
@@ -354,6 +357,7 @@ export default function RestaurantMenuPage() {
         )}
       </AnimatePresence>
     </div>
+    </Suspense>
   )
 }
 
