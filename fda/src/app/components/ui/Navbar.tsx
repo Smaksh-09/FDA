@@ -81,7 +81,7 @@ export default function Navbar() {
                     Watch Reels
                   </Link>
                   <Link
-                    href="/#order-section"
+                    href="/order-food"
                     className="flex items-center gap-2 px-3 py-2 bg-white border-2 border-white text-black font-bold text-sm hover:bg-gray-100 transition-colors"
                   >
                     <ShoppingBag className="w-4 h-4" />

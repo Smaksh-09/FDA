@@ -64,33 +64,71 @@ export async function POST(request: Request) {
 }
 
 /**
- * GET handler for fetching restaurant data for the current owner
+ * GET handler for fetching restaurants
+ * - If authenticated as RESTAURANT_OWNER: returns owner's restaurant
+ * - If not authenticated or regular user: returns all public restaurants
  */
 export async function GET(request: Request) {
   const headersList = await headers();
   const userId = headersList.get('x-user-id') as string | null;
   const userRole = headersList.get('x-user-role') as string | null;
 
-  if (!userId) {
-    return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
-  }
-
-  if (userRole !== 'RESTAURANT_OWNER') {
-    return NextResponse.json({ error: 'Only restaurant owners can access this resource.' }, { status: 403 });
-  }
-
   try {
-    const restaurant = await prisma.restaurant.findUnique({
-      where: { ownerId: userId },
-    });
+    // If authenticated as restaurant owner, return their restaurant
+    if (userId && userRole === 'RESTAURANT_OWNER') {
+      const restaurant = await prisma.restaurant.findUnique({
+        where: { ownerId: userId },
+      });
 
-    if (!restaurant) {
-      return NextResponse.json({ error: 'Restaurant not found for this owner.' }, { status: 404 });
+      if (!restaurant) {
+        return NextResponse.json({ error: 'Restaurant not found for this owner.' }, { status: 404 });
+      }
+
+      return NextResponse.json(restaurant);
     }
 
-    return NextResponse.json(restaurant);
+    // For public access (non-authenticated or regular users), return all restaurants
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get('search');
+    const veg = searchParams.get('veg');
+    const rating = searchParams.get('rating');
+
+    const whereClause: any = {
+      isOpen: true, // Only show open restaurants
+    };
+
+    // Add search filter
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const restaurants = await prisma.restaurant.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        address: true,
+        imageUrl: true,
+        isOpen: true,
+        createdAt: true,
+        _count: {
+          select: {
+            menuItems: {
+              where: { isAvailable: true }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return NextResponse.json(restaurants);
   } catch (error) {
-    console.error('Failed to fetch restaurant:', error);
-    return NextResponse.json({ error: 'An unexpected error occurred while fetching restaurant.' }, { status: 500 });
+    console.error('Failed to fetch restaurants:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred while fetching restaurants.' }, { status: 500 });
   }
 }

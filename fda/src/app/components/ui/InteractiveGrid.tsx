@@ -78,7 +78,7 @@ export default function InteractiveGrid() {
       // Logged in state
       return [
         // Row 1
-        { component: <ExampleButton text="Order Food" variant="secondary" href="/#order-section" />, span: 'col-span-2' },
+        { component: <ExampleButton text="Order Food" variant="secondary" href="/order-food" />, span: 'col-span-2' },
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><Search className="w-8 h-8" /></div>, span: 'col-span-1' },
     { component: <ExampleCard title="Pizza" price="₹12.99" />, span: 'col-span-2' },
         { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><Menu className="w-8 h-8" /></div>, span: 'col-span-1' },
