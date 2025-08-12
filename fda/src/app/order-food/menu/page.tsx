@@ -81,15 +81,19 @@ function RestaurantMenuContent() {
 
   // Cart functions
   const addToCart = (item: FoodItem) => {
-    setCart(prev => ({
-      ...prev,
+    const newCart = {
+      ...cart,
       [item.id]: {
         id: item.id,
         name: item.name,
         price: item.price,
-        quantity: (prev[item.id]?.quantity || 0) + 1
+        quantity: (cart[item.id]?.quantity || 0) + 1
       }
-    }))
+    }
+    setCart(newCart)
+    
+    // Save to localStorage for cart page
+    saveCartToStorage(newCart)
     
     // Trigger cart pulse animation
     setCartPulse(true)
@@ -106,6 +110,8 @@ function RestaurantMenuContent() {
           delete newCart[itemId]
         }
       }
+      // Save to localStorage for cart page
+      saveCartToStorage(newCart)
       return newCart
     })
   }
@@ -115,14 +121,31 @@ function RestaurantMenuContent() {
       setCart(prev => {
         const newCart = { ...prev }
         delete newCart[itemId]
+        // Save to localStorage for cart page
+        saveCartToStorage(newCart)
         return newCart
       })
     } else {
-      setCart(prev => ({
-        ...prev,
-        [prev[itemId].id]: { ...prev[itemId], quantity }
-      }))
+      setCart(prev => {
+        const newCart = {
+          ...prev,
+          [prev[itemId].id]: { ...prev[itemId], quantity }
+        }
+        // Save to localStorage for cart page
+        saveCartToStorage(newCart)
+        return newCart
+      })
     }
+  }
+
+  // Save cart to localStorage
+  const saveCartToStorage = (cartData: Record<string, CartItem>) => {
+    const cartItems = Object.values(cartData).map(item => ({
+      ...item,
+      restaurantId: restaurant?.id || '',
+      restaurantName: restaurant?.name || ''
+    }))
+    localStorage.setItem('reelbites-cart', JSON.stringify(cartItems))
   }
 
   // Cart calculations
@@ -339,6 +362,7 @@ function RestaurantMenuContent() {
             }}
             whileHover={{ scale: 1.05, x: -2, y: -2 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => router.push('/order-food/cart')}
             className="fixed bottom-6 right-6 bg-black border-2 border-black p-6 cursor-pointer z-50"
             style={{ boxShadow: '4px 4px 0px #39FF14' }}
           >
