@@ -109,7 +109,7 @@ export default function OrderFoodPage() {
   }
 
   const handleRestaurantClick = (restaurantId: string) => {
-    router.push(`/restaurant/${restaurantId}`)
+    router.push(`/order-food/menu?id=${restaurantId}`)
   }
 
   return (
