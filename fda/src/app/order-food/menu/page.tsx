@@ -34,9 +34,8 @@ interface CartItem {
   quantity: number
 }
 
-export default function RestaurantMenuPage() {
+function RestaurantMenuContent() {
   const router = useRouter()
-
   const searchParams = useSearchParams()
   const { user } = useUserStore()
   const restaurantId = searchParams.get('id')
@@ -221,7 +220,6 @@ export default function RestaurantMenuPage() {
   }
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
     <div className="min-h-screen bg-gray-100 flex">
       {/* Left Panel - The Index */}
       <div className="fixed left-0 top-0 h-full w-80 bg-black border-r-2 border-black z-40 flex flex-col">
@@ -357,7 +355,6 @@ export default function RestaurantMenuPage() {
         )}
       </AnimatePresence>
     </div>
-    </Suspense>
   )
 }
 
@@ -459,5 +456,20 @@ function MenuItemCard({ item, cartQuantity, onAdd, onRemove, onUpdateQuantity }:
         </div>
       </div>
     </motion.div>
+  )
+}
+
+export default function RestaurantMenuPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="font-extrabold text-2xl text-black mb-2">LOADING MENU...</div>
+          <div className="text-black">Please wait while we fetch the menu</div>
+        </div>
+      </div>
+    }>
+      <RestaurantMenuContent />
+    </Suspense>
   )
 }
