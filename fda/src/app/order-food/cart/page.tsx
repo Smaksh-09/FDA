@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, MapPin, CreditCard, Check, Plus, Menu, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useUserStore } from '@/store/useUserStore'
+import PaymentModal from '../components/PaymentModal'
 
 interface CartItem {
   id: string
@@ -36,6 +37,7 @@ export default function CartPage() {
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
   const [orderComplete, setOrderComplete] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
 
   // Load cart from localStorage and fetch addresses
   useEffect(() => {
@@ -92,9 +94,16 @@ export default function CartPage() {
   // Check if order can be placed
   const canPlaceOrder = cartItems.length > 0 && selectedAddress && !isPlacingOrder
 
-  // Handle order placement (mock payment)
+  // Handle order placement - Show payment modal first
   const handlePlaceOrder = async () => {
     if (!canPlaceOrder || !user) return
+    // Just show the payment modal - actual order creation happens in payment completion
+    setShowPaymentModal(true)
+  }
+
+  // Handle payment completion - Create orders with integrated payment
+  const handlePaymentComplete = async () => {
+    if (!user) return
 
     setIsPlacingOrder(true)
 
@@ -108,7 +117,9 @@ export default function CartPage() {
         return groups
       }, {} as Record<string, CartItem[]>)
 
-      // Create orders for each restaurant
+      const results = []
+
+      // Create orders with integrated payments for each restaurant
       for (const [restaurantId, items] of Object.entries(restaurantGroups)) {
         const orderData = {
           restaurantId,
@@ -133,6 +144,9 @@ export default function CartPage() {
         if (!response.ok) {
           throw new Error('Failed to create order')
         }
+
+        const result = await response.json()
+        results.push(result)
       }
 
       // Clear cart and show success
@@ -428,6 +442,14 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        totalAmount={totalPrice}
+        onPaymentComplete={handlePaymentComplete}
+      />
     </div>
   )
 }
