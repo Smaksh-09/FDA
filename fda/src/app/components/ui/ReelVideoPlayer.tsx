@@ -98,8 +98,17 @@ export default function ReelVideoPlayer({
       }`}
       onMouseEnter={() => !isMobile && setShowControls(true)}
       onMouseLeave={() => !isMobile && setShowControls(false)}
-      onTouchStart={() => isMobile && setShowControls(true)}
-      onClick={togglePlay}
+      onClick={(e) => {
+        // Only toggle play if clicking on the video itself, not on buttons
+        if (e.target === e.currentTarget || (e.target as Element).tagName === 'VIDEO') {
+          togglePlay()
+        }
+        // Show controls temporarily on mobile when tapping
+        if (isMobile) {
+          setShowControls(true)
+          setTimeout(() => setShowControls(false), 3000)
+        }
+      }}
     >
       {/* Video Element */}
       <video

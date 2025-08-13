@@ -30,8 +30,8 @@ type ApiReel = {
 }
 
 export default function ReelBytesPage() {
-  const [currentReel, setCurrentReel] = useState<Reel | null>(null)
-  const [playlist, setPlaylist] = useState<Reel[]>([])
+  const [allReels, setAllReels] = useState<Reel[]>([])
+  const [currentIndex, setCurrentIndex] = useState<number>(0)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false)
@@ -39,6 +39,9 @@ export default function ReelBytesPage() {
   const [isMobile, setIsMobile] = useState(false)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
+
+  // Derived state - get current reel from the array
+  const currentReel = allReels.length > 0 ? allReels[currentIndex] : null
 
   // Detect if user is on mobile
   useEffect(() => {
@@ -85,16 +88,16 @@ export default function ReelBytesPage() {
             createdAt: r.createdAt,
           }))
 
-          setCurrentReel(mapped[0])
-          setPlaylist(mapped.slice(1))
+          setAllReels(mapped)
+          setCurrentIndex(0)
         } else {
-          setCurrentReel(null)
-          setPlaylist([])
+          setAllReels([])
+          setCurrentIndex(0)
         }
       } catch (err) {
         console.error(err)
-        setCurrentReel(null)
-        setPlaylist([])
+        setAllReels([])
+        setCurrentIndex(0)
       } finally {
         setIsLoading(false)
       }
@@ -104,29 +107,22 @@ export default function ReelBytesPage() {
   }, [])
 
   const handleReelSelect = (selectedReel: Reel) => {
-    // Update current reel
-    setCurrentReel(selectedReel)
-    
-    // Remove selected reel from playlist and add current reel to the end
-    const newPlaylist = playlist.filter(reel => reel.id !== selectedReel.id)
-    if (currentReel) newPlaylist.push(currentReel)
-    setPlaylist(newPlaylist)
+    // Find the index of the selected reel in allReels
+    const index = allReels.findIndex(reel => reel.id === selectedReel.id)
+    if (index !== -1) {
+      setCurrentIndex(index)
+    }
   }
 
   const goToNextReel = () => {
-    if (playlist.length > 0) {
-      handleReelSelect(playlist[0])
+    if (currentIndex < allReels.length - 1) {
+      setCurrentIndex(prev => prev + 1)
     }
   }
 
   const goToPreviousReel = () => {
-    // Find current reel index in the full list
-    const allReels = currentReel ? [currentReel, ...playlist] : [...playlist]
-    const currentIndex = 0 // Current reel is always at index 0
-    
-    if (currentIndex < allReels.length - 1) {
-      // Go to next reel (swipe up behavior)
-      goToNextReel()
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1)
     }
   }
 
@@ -151,9 +147,8 @@ export default function ReelBytesPage() {
       // Swipe up - go to next reel
       goToNextReel()
     } else if (isDownSwipe) {
-      // Swipe down - go to previous reel (for now, just stay on current)
-      // Could implement going back in history here
-      console.log('Swipe down detected')
+      // Swipe down - go to previous reel
+      goToPreviousReel()
     }
   }
 
@@ -166,7 +161,7 @@ export default function ReelBytesPage() {
     }, 30000)
 
     return () => clearTimeout(autoAdvanceTimer)
-  }, [currentReel])
+  }, [currentIndex])
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] flex flex-col">
@@ -202,37 +197,46 @@ export default function ReelBytesPage() {
         {isMobile ? (
           /* Mobile Layout - Full screen video with swipe */
           <div 
-            className="w-full h-full"
+            className="relative w-full min-h-screen flex flex-col"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            {currentReel ? (
-              <ReelVideoPlayer 
-                reel={currentReel}
-                isActive={true}
-                isMobile={true}
-                onCommentClick={() => setIsCommentsModalOpen(true)}
-                onMenuClick={() => setIsMobileMenuOpen(true)}
-                onOrderClick={() => setIsOrderModalOpen(true)}
-              />
-            ) : (
-              <div className="min-h-screen flex items-center justify-center text-black">Loading...</div>
-            )}
-            
             {/* Mobile UI Overlays */}
-            <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
+            <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
               {/* Swipe Indicator */}
               <div className="bg-black bg-opacity-60 border border-white px-2 py-1 text-white text-xs font-bold">
-                Swipe ↑ for next
+                Swipe ↑ for next {currentIndex > 0 && "| ↓ for prev"}
               </div>
               
               {/* Video Progress Indicators */}
               <MobileVideoIndicators 
-                currentIndex={0}
-                totalVideos={playlist.length + 1}
+                currentIndex={currentIndex}
+                totalVideos={allReels.length}
                 className="w-20"
               />
+            </div>
+
+            {/* Video Player - Full height */}
+            <div className="flex-1 relative">
+              {currentReel ? (
+                <ReelVideoPlayer 
+                  key={currentReel.id}
+                  reel={currentReel}
+                  isActive={true}
+                  isMobile={true}
+                  onCommentClick={() => setIsCommentsModalOpen(true)}
+                  onMenuClick={() => setIsMobileMenuOpen(true)}
+                  onOrderClick={() => setIsOrderModalOpen(true)}
+                />
+              ) : (
+                <div className="h-full flex items-center justify-center text-black bg-gray-100">
+                  <div className="text-center">
+                    <div className="font-extrabold text-2xl mb-2">LOADING REELS...</div>
+                    <div>Finding the best content for you</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -241,7 +245,7 @@ export default function ReelBytesPage() {
             {/* Left Column - Playlist */}
             <aside className="w-80 flex-shrink-0">
               <ReelPlaylist 
-                playlist={playlist}
+                playlist={allReels}
                 currentReelId={currentReel?.id ?? ''}
                 onReelSelect={handleReelSelect}
               />
@@ -253,6 +257,7 @@ export default function ReelBytesPage() {
                 <div className="relative w-full max-w-[420px] aspect-[9/16]">
                   {currentReel ? (
                     <ReelVideoPlayer 
+                      key={currentReel.id}
                       reel={currentReel}
                       isActive={true}
                       isMobile={false}
