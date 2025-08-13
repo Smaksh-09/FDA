@@ -22,9 +22,9 @@ export default function ReelPlaylist({ playlist, currentReelId, onReelSelect }: 
   const formatPrice = (price: number): string => `₹${price.toFixed(2)}`
 
   return (
-    <div className="h-full bg-black border-2 border-black">
+    <div className="h-full bg-black border-2 border-black flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b-2 border-white">
+      <div className="p-4 border-b-2 border-white flex-shrink-0">
         <h2 className="text-white font-bold text-xl">Up Next</h2>
         <p className="text-gray-300 font-normal text-sm mt-1">
           {playlist.length} videos in queue
@@ -32,7 +32,7 @@ export default function ReelPlaylist({ playlist, currentReelId, onReelSelect }: 
       </div>
 
       {/* Playlist Items */}
-      <div className="overflow-y-auto h-full pb-20">
+      <div className="flex-1 overflow-y-auto pb-20">
         {playlist.map((reel, index) => {
           const isCurrentlyPlaying = reel.id === currentReelId
           

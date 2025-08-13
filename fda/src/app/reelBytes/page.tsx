@@ -9,6 +9,7 @@ import ReelInspector from '../components/ui/ReelInspector'
 import MobileMenuDrawer from '../components/ui/MobileMenuDrawer'
 import MobileCommentsModal from '../components/ui/MobileCommentsModal'
 import MobileVideoIndicators from '../components/ui/MobileVideoIndicators'
+import SmoothReelScroller from './components/SmoothReelScroller'
 import { Reel } from './types'
 import OrderConfirmModal from './OrderConfirmModal'
 
@@ -37,8 +38,6 @@ export default function ReelBytesPage() {
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false)
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [touchStart, setTouchStart] = useState<number | null>(null)
-  const [touchEnd, setTouchEnd] = useState<number | null>(null)
 
   // Derived state - get current reel from the array
   const currentReel = allReels.length > 0 ? allReels[currentIndex] : null
@@ -114,42 +113,8 @@ export default function ReelBytesPage() {
     }
   }
 
-  const goToNextReel = () => {
-    if (currentIndex < allReels.length - 1) {
-      setCurrentIndex(prev => prev + 1)
-    }
-  }
-
-  const goToPreviousReel = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1)
-    }
-  }
-
-  // Handle touch events for mobile swipe navigation
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null)
-    setTouchStart(e.targetTouches[0].clientY)
-  }
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientY)
-  }
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
-    
-    const distance = touchStart - touchEnd
-    const isUpSwipe = distance > 50
-    const isDownSwipe = distance < -50
-
-    if (isUpSwipe) {
-      // Swipe up - go to next reel
-      goToNextReel()
-    } else if (isDownSwipe) {
-      // Swipe down - go to previous reel
-      goToPreviousReel()
-    }
+  const handleIndexChange = (newIndex: number) => {
+    setCurrentIndex(newIndex)
   }
 
   // Auto-advance to next reel (simulating end of video)
@@ -195,21 +160,10 @@ export default function ReelBytesPage() {
       {/* Main Content */}
       <main className="flex-1 flex overflow-hidden">
         {isMobile ? (
-          /* Mobile Layout - Full screen video with swipe */
-          <div 
-            className="relative w-full min-h-screen flex flex-col"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            {/* Mobile UI Overlays */}
-            <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
-              {/* Swipe Indicator */}
-              <div className="bg-black bg-opacity-60 border border-white px-2 py-1 text-white text-xs font-bold">
-                Swipe ↑ for next {currentIndex > 0 && "| ↓ for prev"}
-              </div>
-              
-              {/* Video Progress Indicators */}
+          /* Mobile Layout - Full screen video with smooth scrolling */
+          <div className="relative w-full min-h-screen flex flex-col">
+            {/* Video Progress Indicators */}
+            <div className="absolute top-4 right-4 z-30 pointer-events-none">
               <MobileVideoIndicators 
                 currentIndex={currentIndex}
                 totalVideos={allReels.length}
@@ -217,14 +171,14 @@ export default function ReelBytesPage() {
               />
             </div>
 
-            {/* Video Player - Full height */}
+            {/* Smooth Scrolling Video Player */}
             <div className="flex-1 relative">
-              {currentReel ? (
-                <ReelVideoPlayer 
-                  key={currentReel.id}
-                  reel={currentReel}
-                  isActive={true}
+              {allReels.length > 0 ? (
+                <SmoothReelScroller
+                  reels={allReels}
+                  initialIndex={currentIndex}
                   isMobile={true}
+                  onIndexChange={handleIndexChange}
                   onCommentClick={() => setIsCommentsModalOpen(true)}
                   onMenuClick={() => setIsMobileMenuOpen(true)}
                   onOrderClick={() => setIsOrderModalOpen(true)}
@@ -255,12 +209,12 @@ export default function ReelBytesPage() {
             <section className="flex-1 p-4 bg-black">
               <div className="h-full w-full flex items-center justify-center">
                 <div className="relative w-full max-w-[420px] aspect-[9/16]">
-                  {currentReel ? (
-                    <ReelVideoPlayer 
-                      key={currentReel.id}
-                      reel={currentReel}
-                      isActive={true}
+                  {allReels.length > 0 ? (
+                    <SmoothReelScroller
+                      reels={allReels}
+                      initialIndex={currentIndex}
                       isMobile={false}
+                      onIndexChange={handleIndexChange}
                       onOrderClick={() => setIsOrderModalOpen(true)}
                     />
                   ) : (
