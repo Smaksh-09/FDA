@@ -53,7 +53,7 @@ export default function AppWireframe() {
             </div>
             <div className="absolute bottom-2 left-2 text-white">
               <div className="text-sm font-bold">Pizza Margherita</div>
-              <div className="text-xs">₹12.99</div>
+              <div className="text-xs">₹129.99</div>
             </div>
             <div className="absolute bottom-2 right-2">
               <Heart className="w-5 h-5 text-white" />
@@ -78,7 +78,7 @@ export default function AppWireframe() {
             </div>
             <div className="absolute bottom-2 left-2 text-white">
               <div className="text-sm font-bold">Sushi Roll</div>
-              <div className="text-xs">₹15.99</div>
+              <div className="text-xs">₹159.99</div>
             </div>
             <div className="absolute bottom-2 right-2 flex items-center space-x-1">
               <Star className="w-4 h-4 text-[#39FF14]" fill="currentColor" />
@@ -104,7 +104,7 @@ export default function AppWireframe() {
             </div>
             <div className="absolute bottom-2 left-2 text-white">
               <div className="text-sm font-bold">Burger Deluxe</div>
-              <div className="text-xs">₹8.99</div>
+              <div className="text-xs">₹89.99</div>
             </div>
             <div className="absolute top-2 right-2">
               <div className="bg-[#39FF14] text-black text-xs font-bold px-2 py-1">
