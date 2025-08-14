@@ -6,6 +6,7 @@ import HowItWorks from './ui/HowItWorks'
 import Features from './ui/Features'
 import FinalCTA from './ui/Footer'
 import Footer from './ui/Footer'
+import LiveOrderStatus from './ui/LiveOrderStatus'
 
 export default function LandingPage() {
   return (
@@ -18,6 +19,9 @@ export default function LandingPage() {
         <Features />
         <FinalCTA />
       </div>
+      
+      {/* Live Order Status - Fixed Position */}
+      <LiveOrderStatus />
     </div>
   )
 }

@@ -176,13 +176,10 @@ export default function PaymentModal({
                   }}
                 >
                   {isProcessing ? (
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="inline-block"
-                    >
-                      [ PROCESSING... ]
-                    </motion.div>
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full animate-spin"></div>
+                      <span>PROCESSING...</span>
+                    </div>
                   ) : timeLeft === 0 ? (
                     '[ TIME EXPIRED ]'
                   ) : (

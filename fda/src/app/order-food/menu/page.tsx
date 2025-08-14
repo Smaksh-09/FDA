@@ -154,12 +154,26 @@ function RestaurantMenuContent() {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
   const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
 
-  // Group menu items by category (simplified - just split by price range for demo)
+  // Group menu items by category based on food type and price
   const groupedItems = restaurant?.menuItems.reduce((groups, item) => {
-    let category = 'MAIN COURSE'
-    if (item.price < 150) category = 'STARTERS'
-    else if (item.price > 300) category = 'BIRYANI'
-    else if (item.price < 100) category = 'DESSERTS'
+    let category = 'MAIN COURSE' // Default category
+    
+    // Dynamic categorization based on food name and price
+    const itemName = item.name.toLowerCase()
+    const itemDesc = item.description.toLowerCase()
+    
+    // Check for specific food types first
+    if (itemName.includes('pizza') || itemName.includes('biryani') || itemName.includes('rice') || item.price > 400) {
+      category = 'BIRYANI & RICE'
+    } else if (itemName.includes('burger') || itemName.includes('sandwich') || itemName.includes('wrap') || (item.price >= 150 && item.price <= 400)) {
+      category = 'BURGERS & MAINS'
+    } else if (itemName.includes('fries') || itemName.includes('starter') || itemName.includes('appetizer') || itemName.includes('wing') || (item.price >= 80 && item.price < 150)) {
+      category = 'STARTERS & SIDES'
+    } else if (itemName.includes('dessert') || itemName.includes('ice cream') || itemName.includes('cake') || itemName.includes('sweet') || item.price < 80) {
+      category = 'DESSERTS & BEVERAGES'
+    } else if (itemName.includes('egg') || itemName.includes('omelet')) {
+      category = 'EGG SPECIALS'
+    }
     
     if (!groups[category]) groups[category] = []
     groups[category].push(item)
@@ -167,6 +181,11 @@ function RestaurantMenuContent() {
   }, {} as Record<string, FoodItem[]>) || {}
 
   const categories = Object.keys(groupedItems)
+  
+  // Debug logging
+  console.log('Restaurant menuItems:', restaurant?.menuItems)
+  console.log('GroupedItems:', groupedItems)
+  console.log('Categories:', categories)
 
   // Scroll detection for active category
   useEffect(() => {

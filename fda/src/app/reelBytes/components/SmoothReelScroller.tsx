@@ -28,7 +28,7 @@ export default function SmoothReelScroller({
   const [wrapperTransform, setWrapperTransform] = useState('translateY(0)')
   const wrapperRef = useRef<HTMLDivElement>(null)
   const lastScrollTimeRef = useRef<number>(0)
-  const animationTimeoutRef = useRef<NodeJS.Timeout>()
+  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Scroll throttling - prevent oversensitive scrolling
   const SCROLL_THROTTLE = 800 // 800ms between scroll events
@@ -63,7 +63,7 @@ export default function SmoothReelScroller({
 
     // Clear any existing timeout
     if (animationTimeoutRef.current) {
-      clearTimeout(animationTimeoutRef.current)
+      if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current)
     }
 
     // After animation completes, reset position and update state
@@ -89,7 +89,7 @@ export default function SmoothReelScroller({
 
     // Clear any existing timeout
     if (animationTimeoutRef.current) {
-      clearTimeout(animationTimeoutRef.current)
+      if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current)
     }
 
     // After animation completes, reset position and update state
@@ -142,7 +142,7 @@ export default function SmoothReelScroller({
   useEffect(() => {
     return () => {
       if (animationTimeoutRef.current) {
-        clearTimeout(animationTimeoutRef.current)
+        if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current)
       }
     }
   }, [])

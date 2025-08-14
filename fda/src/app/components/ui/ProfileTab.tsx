@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from 'react'
-import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import React, { useState } from 'react'
+import { User, Mail } from 'lucide-react'
 import { UserProfile } from '../../account/types'
 
 interface ProfileTabProps {
@@ -12,29 +12,29 @@ interface ProfileTabProps {
 interface FormData {
   name: string
   email: string
-  newPassword: string
-  confirmPassword: string
 }
 
 interface FormErrors {
   name?: string
-  newPassword?: string
-  confirmPassword?: string
   general?: string
 }
 
 export default function ProfileTab({ profile, onProfileUpdate }: ProfileTabProps) {
   const [formData, setFormData] = useState<FormData>({
-    name: profile.name,
-    email: profile.email,
-    newPassword: '',
-    confirmPassword: ''
+    name: profile.name || '',
+    email: profile.email || ''
   })
   const [errors, setErrors] = useState<FormErrors>({})
   const [isLoading, setIsLoading] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+
+  // Update form data when profile changes (fixes loading issue)
+  React.useEffect(() => {
+    setFormData({
+      name: profile.name || '',
+      email: profile.email || ''
+    })
+  }, [profile.name, profile.email])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -62,21 +62,6 @@ export default function ProfileTab({ profile, onProfileUpdate }: ProfileTabProps
       newErrors.name = 'Name must be at least 2 characters long'
     }
 
-    // Password validation (only if user is trying to change password)
-    if (formData.newPassword || formData.confirmPassword) {
-      if (!formData.newPassword) {
-        newErrors.newPassword = 'New password is required'
-      } else if (formData.newPassword.length < 6) {
-        newErrors.newPassword = 'Password must be at least 6 characters long'
-      }
-
-      if (!formData.confirmPassword) {
-        newErrors.confirmPassword = 'Please confirm your new password'
-      } else if (formData.newPassword !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Passwords do not match'
-      }
-    }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -101,13 +86,6 @@ export default function ProfileTab({ profile, onProfileUpdate }: ProfileTabProps
       }
       
       onProfileUpdate(updatedFields)
-      
-      // Clear password fields after successful update
-      setFormData(prev => ({
-        ...prev,
-        newPassword: '',
-        confirmPassword: ''
-      }))
       
       setSuccessMessage('Profile updated successfully!')
       
@@ -187,72 +165,6 @@ export default function ProfileTab({ profile, onProfileUpdate }: ProfileTabProps
           <p className="text-gray-600 text-xs font-normal mt-1">
             Email address cannot be changed. Contact support if needed.
           </p>
-        </div>
-
-        {/* New Password Field */}
-        <div>
-          <label htmlFor="newPassword" className="block text-sm font-bold text-black mb-2">
-            New Password (Optional)
-          </label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black" />
-            <input
-              type={showNewPassword ? 'text' : 'password'}
-              id="newPassword"
-              name="newPassword"
-              value={formData.newPassword}
-              onChange={handleInputChange}
-              className={`w-full pl-12 pr-12 py-3 border-2 ${
-                errors.newPassword ? 'border-red-500' : 'border-black'
-              } bg-white text-black font-normal focus:outline-none focus:border-[#39FF14] transition-colors`}
-              placeholder="Enter new password"
-              disabled={isLoading}
-            />
-            <button
-              type="button"
-              onClick={() => setShowNewPassword(!showNewPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black hover:text-gray-600"
-              disabled={isLoading}
-            >
-              {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-            </button>
-          </div>
-          {errors.newPassword && (
-            <p className="text-red-600 text-sm font-bold mt-1">{errors.newPassword}</p>
-          )}
-        </div>
-
-        {/* Confirm Password Field */}
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-bold text-black mb-2">
-            Confirm New Password
-          </label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black" />
-            <input
-              type={showConfirmPassword ? 'text' : 'password'}
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              className={`w-full pl-12 pr-12 py-3 border-2 ${
-                errors.confirmPassword ? 'border-red-500' : 'border-black'
-              } bg-white text-black font-normal focus:outline-none focus:border-[#39FF14] transition-colors`}
-              placeholder="Confirm new password"
-              disabled={isLoading}
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black hover:text-gray-600"
-              disabled={isLoading}
-            >
-              {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-            </button>
-          </div>
-          {errors.confirmPassword && (
-            <p className="text-red-600 text-sm font-bold mt-1">{errors.confirmPassword}</p>
-          )}
         </div>
 
         {/* Submit Button */}

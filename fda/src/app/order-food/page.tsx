@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { Search, ShoppingCart, Star, Clock, Percent, Menu, X } from 'lucide-react'
+import { Search, ShoppingCart, Star, Clock, Percent, Menu, X, ArrowLeft } from 'lucide-react'
 import { useUserStore } from '@/store/useUserStore'
 import { useRouter } from 'next/navigation'
 
@@ -161,6 +161,18 @@ export default function OrderFoodPage() {
         <div className="p-6">
           {/* Sidebar Header */}
           <div className="mb-8">
+            {/* Back Button */}
+            <motion.button
+              onClick={() => router.push('/')}
+              whileHover={{ x: -2, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full p-3 bg-black border-2 border-black text-lime-400 font-bold hover:bg-gray-800 transition-colors mb-4 flex items-center gap-3"
+              style={{ boxShadow: '2px 2px 0px #000' }}
+            >
+              <ArrowLeft className="w-5 h-5" />
+              [ BACK TO HOME ]
+            </motion.button>
+            
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-2xl font-extrabold text-black">
                 FILTER & SEARCH
