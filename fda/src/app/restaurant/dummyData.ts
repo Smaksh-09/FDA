@@ -149,13 +149,30 @@ export const dummyOrders: Order[] = [
 ]
 
 // Calculate restaurant stats from orders
-export const calculateStats = (orders: Order[]): RestaurantStats => {
+export const calculateStats = (orders: any[]): RestaurantStats => {
+  if (!orders || orders.length === 0) {
+    return {
+      incomingOrders: 0,
+      preparingOrders: 0,
+      totalSalesToday: 0,
+      averagePrepTime: 0,
+      ordersCompletedToday: 0,
+      revenue: {
+        today: 0,
+        week: 0,
+        month: 0
+      }
+    }
+  }
+
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   
-  const todaysOrders = orders.filter(order => 
-    order.placedAt >= today
-  )
+  const todaysOrders = orders.filter(order => {
+    if (!order.createdAt) return false
+    const orderDate = new Date(order.createdAt)
+    return orderDate >= today
+  })
   
   const incomingOrders = orders.filter(order => 
     order.status === 'PENDING' || order.status === 'CONFIRMED'
@@ -170,12 +187,11 @@ export const calculateStats = (orders: Order[]): RestaurantStats => {
   ).length
   
   const totalSalesToday = todaysOrders.reduce((sum, order) => 
-    order.status !== 'CANCELLED' ? sum + order.totalAmount : sum, 0
+    order.status !== 'CANCELLED' ? sum + (order.totalPrice || 0) : sum, 0
   )
   
-  // Calculate average prep time (mock calculation)
-  const avgPrepTime = orders.length > 0 ? 
-    Math.round(orders.reduce((sum, order) => sum + order.estimatedTime, 0) / orders.length) : 0
+  // Calculate average prep time (using a default since API orders don't have estimatedTime)
+  const avgPrepTime = 12 // Default prep time in minutes
   
   return {
     incomingOrders,

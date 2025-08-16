@@ -5,8 +5,7 @@ import { Plus, Video, TrendingUp, Eye, Heart } from 'lucide-react'
 import RestaurantSidebar from '../../components/ui/RestaurantSidebar'
 import UploadReelPanel from '../../components/ui/UploadReelPanel'
 import ReelCard from '../../components/ui/ReelCard'
-import { dummyRestaurant } from '../dummyData'
-import { Reel } from '../types'
+import { Reel, Restaurant } from '../types'
 
 export default function ReelsManagementPage() {
   const [reels, setReels] = useState<Reel[]>([])
@@ -14,6 +13,7 @@ export default function ReelsManagementPage() {
   const [menuItems, setMenuItems] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
 
   const handleUploadComplete = (newReel: Reel) => {
     setReels(prev => [newReel, ...prev])
@@ -25,8 +25,28 @@ export default function ReelsManagementPage() {
     alert('Edit functionality coming soon!')
   }
 
-  const handleDeleteReel = (reelId: string) => {
-    setReels(prev => prev.filter(reel => reel.id !== reelId))
+  const handleDeleteReel = async (reelId: string) => {
+    try {
+      const res = await fetch(`/api/reels/${reelId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        alert(`Failed to delete reel: ${errorData.error || 'Unknown error'}`)
+        return
+      }
+
+      // Remove the reel from the local state on successful deletion
+      setReels(prev => prev.filter(reel => reel.id !== reelId))
+      
+      // Optional: Show success message
+      console.log('Reel deleted successfully')
+    } catch (error) {
+      console.error('Error deleting reel:', error)
+      alert('Failed to delete reel. Please try again.')
+    }
   }
 
   const handleToggleActive = (reelId: string) => {
@@ -70,52 +90,62 @@ export default function ReelsManagementPage() {
 
   // Fetch reels for this restaurant on mount
   useEffect(() => {
-    const fetchReels = async () => {
+    const fetchData = async () => {
       try {
-        // Here we assume current user is the owner; backend will filter via restaurantId if provided
-        const params = new URLSearchParams()
-        // If you have the restaurant id in state, add it here
-        // params.set('restaurantId', currentRestaurantId)
-        const res = await fetch(`/api/reels?${params.toString()}`, { credentials: 'include' })
-        if (!res.ok) throw new Error('Failed to fetch reels')
-        const data = await res.json()
-        setReels(data.reels || [])
+        setIsLoading(true)
+        
+        // Fetch restaurant info
+        const restaurantRes = await fetch('/api/restaurants', { credentials: 'include' })
+        if (restaurantRes.ok) {
+          const restaurantData = await restaurantRes.json()
+          setRestaurant(restaurantData)
+          
+          // Fetch reels for this specific restaurant
+          const reelsRes = await fetch(`/api/reels?restaurantId=${restaurantData.id}`, { credentials: 'include' })
+          if (reelsRes.ok) {
+            const reelsData = await reelsRes.json()
+            setReels(reelsData.reels || [])
+          }
+        }
+        
+        // Fetch menu items
+        const menuRes = await fetch('/api/food-items', { credentials: 'include' })
+        if (menuRes.ok) {
+          const menuData = await menuRes.json()
+          setMenuItems(menuData)
+        }
       } catch (e) {
-        console.error(e)
+        console.error('Failed to fetch data:', e)
       } finally {
         setIsLoading(false)
       }
     }
-    fetchReels()
-    const fetchMenu = async () => {
-      try {
-        const res = await fetch('/api/food-items', { credentials: 'include' })
-        if (res.ok) {
-          const data = await res.json()
-          setMenuItems(data)
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    }
-    fetchMenu()
+    
+    fetchData()
   }, [])
+
+  if (isLoading || !restaurant) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-black mb-2">Loading Reels...</h2>
+          <p className="text-gray-600 font-normal">Fetching your restaurant data</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] flex">
       {/* Sidebar */}
       <RestaurantSidebar 
-        restaurant={dummyRestaurant} 
+        restaurant={restaurant} 
         currentPage="reels" 
       />
 
       {/* Main Content */}
       <div className="flex-1 p-6">
-        {isLoading && (
-          <div className="fixed inset-0 z-40 flex items-center justify-center">
-            <div className="w-14 h-14 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin" />
-          </div>
-        )}
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>

@@ -129,7 +129,7 @@ export default function ReelBytesPage() {
   }, [currentIndex])
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] flex flex-col">
+    <div className="h-screen bg-[#F5F5F5] flex flex-col overflow-hidden">
       {/* Header Navigation - Hidden on Mobile */}
       {!isMobile && (
         <header className="bg-white border-b-2 border-black p-4 flex items-center justify-between">
@@ -161,7 +161,7 @@ export default function ReelBytesPage() {
       <main className="flex-1 flex overflow-hidden">
         {isMobile ? (
           /* Mobile Layout - Full screen video with smooth scrolling */
-          <div className="relative w-full min-h-screen flex flex-col">
+          <div className="relative w-full h-full flex flex-col">
             {/* Video Progress Indicators */}
             <div className="absolute top-4 right-4 z-30 pointer-events-none">
               <MobileVideoIndicators 
@@ -172,7 +172,7 @@ export default function ReelBytesPage() {
             </div>
 
             {/* Smooth Scrolling Video Player */}
-            <div className="flex-1 relative">
+            <div className="flex-1 relative overflow-hidden">
               {allReels.length > 0 ? (
                 <SmoothReelScroller
                   reels={allReels}

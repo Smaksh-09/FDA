@@ -1,10 +1,9 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { Plus, Edit, Trash2, Clock, X, Image } from 'lucide-react'
+import { Plus, Edit, Trash2, X, Image } from 'lucide-react'
 import RestaurantSidebar from '../../components/ui/RestaurantSidebar'
-import { dummyRestaurant } from '../dummyData'
-import { MenuItem } from '../types'
+import { MenuItem, Restaurant } from '../types'
 
 interface MenuItemModalProps {
   item: MenuItem | null
@@ -20,10 +19,7 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
       name: '',
       description: '',
       price: 0,
-      category: 'Burgers',
-      isAvailable: true,
-      preparationTime: 5,
-      ingredients: []
+      isAvailable: true
     }
   )
 
@@ -37,16 +33,13 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
       name: formData.name!,
       description: formData.description!,
       price: formData.price!,
-      category: formData.category!,
       isAvailable: formData.isAvailable!,
-      preparationTime: formData.preparationTime!,
-      ingredients: formData.ingredients || [],
       imageUrl: (formData as any).imageUrl || undefined,
     }
     onSave(newItem as MenuItem)
   }
 
-  const categories = ['Burgers', 'Appetizers', 'Sides', 'Wraps', 'Beverages', 'Salads', 'Desserts']
+
 
   return (
     <div className="fixed inset-0 backdrop-blur-md   bg-opacity-50 flex items-center justify-center z-50">
@@ -94,7 +87,7 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
             />
           </div>
 
-          {/* Price, Category and Image URL */}
+          {/* Price and Image URL */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold text-black mb-2">
@@ -112,20 +105,6 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
             </div>
             <div>
               <label className="block text-sm font-bold text-black mb-2">
-                Category
-              </label>
-              <select
-                value={formData.category || 'Burgers'}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-3 py-2 border-2 border-black bg-white text-black font-normal focus:outline-none focus:border-[#39FF14] transition-colors"
-              >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-bold text-black mb-2">
                 Image URL (optional)
               </label>
               <input
@@ -138,33 +117,17 @@ function MenuItemModal({ item, isOpen, onClose, onSave, isNewItem }: MenuItemMod
             </div>
           </div>
 
-          {/* Preparation Time and Availability */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-black mb-2">
-                Preparation Time (minutes)
-              </label>
+          {/* Availability */}
+          <div>
+            <label className="flex items-center gap-2">
               <input
-                type="number"
-                value={formData.preparationTime || ''}
-                onChange={(e) => setFormData({ ...formData, preparationTime: parseInt(e.target.value) || 0 })}
-                className="w-full px-3 py-2 border-2 border-black bg-white text-black font-normal focus:outline-none focus:border-[#39FF14] transition-colors"
-                placeholder="5"
-                min="1"
-                required
+                type="checkbox"
+                checked={formData.isAvailable || false}
+                onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
+                className="w-4 h-4 border-2 border-black focus:outline-none focus:ring-0"
               />
-            </div>
-            <div className="flex items-end">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.isAvailable || false}
-                  onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
-                  className="w-4 h-4 border-2 border-black focus:outline-none focus:ring-0"
-                />
-                <span className="font-bold text-black text-sm">Available for orders</span>
-              </label>
-            </div>
+              <span className="font-bold text-black text-sm">Available for orders</span>
+            </label>
           </div>
 
           {/* Form Actions */}
@@ -194,9 +157,9 @@ export default function MenuPage() {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isNewItem, setIsNewItem] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<string>('All')
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const categories = ['All', 'Burgers', 'Appetizers', 'Sides', 'Wraps', 'Beverages', 'Salads', 'Desserts']
 
   const fetchItems = async () => {
     const res = await fetch('/api/food-items', { credentials: 'include' })
@@ -206,8 +169,21 @@ export default function MenuPage() {
     }
   }
 
+  const fetchRestaurant = async () => {
+    const res = await fetch('/api/restaurants', { credentials: 'include' })
+    if (res.ok) {
+      const data = await res.json()
+      setRestaurant(data)
+    }
+  }
+
   useEffect(() => {
-    fetchItems()
+    const fetchData = async () => {
+      setIsLoading(true)
+      await Promise.all([fetchItems(), fetchRestaurant()])
+      setIsLoading(false)
+    }
+    fetchData()
   }, [])
 
   const handleToggleAvailability = async (itemId: string) => {
@@ -282,19 +258,29 @@ export default function MenuPage() {
   }
 
 
-  const filteredItems = menuItems.filter(item => 
-    selectedCategory === 'All' || item.category === selectedCategory
-  )
+  const filteredItems = menuItems
 
   const formatCurrency = (amount: number): string => {
     return `₹${amount.toLocaleString('en-IN')}`
+  }
+
+  if (isLoading || !restaurant) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-black mb-2">Loading Menu...</h2>
+          <p className="text-gray-600 font-normal">Fetching your restaurant data</p>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] flex">
       {/* Sidebar */}
       <RestaurantSidebar 
-        restaurant={dummyRestaurant} 
+        restaurant={restaurant} 
         currentPage="menu" 
       />
 
@@ -320,34 +306,15 @@ export default function MenuPage() {
           </button>
         </div>
 
-        {/* Category Filter */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2">
-            {categories.map(category => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 border-2 border-black font-bold text-sm transition-all ${
-                  selectedCategory === category
-                    ? 'bg-[#39FF14] text-black neobrutalist-shadow'
-                    : 'bg-white text-black hover:bg-gray-50'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
+
 
         {/* Menu Items Table */}
         <div className="bg-white border-2 border-black neobrutalist-shadow">
           {/* Table Header */}
-          <div className="grid grid-cols-7 gap-4 p-4 border-b-2 border-black bg-[#F5F5F5] font-bold text-black text-sm">
+          <div className="grid grid-cols-5 gap-4 p-4 border-b-2 border-black bg-[#F5F5F5] font-bold text-black text-sm">
             <div>ITEM NAME</div>
             <div>PRICE</div>
             <div>DESCRIPTION</div>
-            <div>PREP TIME</div>
-            <div>CATEGORY</div>
             <div>AVAILABILITY</div>
             <div>ACTIONS</div>
           </div>
@@ -357,12 +324,12 @@ export default function MenuPage() {
             {filteredItems.length === 0 ? (
               <div className="p-8 text-center">
                 <p className="text-gray-600 font-normal text-lg">
-                  {selectedCategory === 'All' ? 'No menu items found' : `No items in ${selectedCategory} category`}
+                  No menu items found
                 </p>
               </div>
             ) : (
               filteredItems.map((item) => (
-                <div key={item.id} className="grid grid-cols-7 gap-4 p-4 hover:bg-gray-50 transition-colors">
+                <div key={item.id} className="grid grid-cols-5 gap-4 p-4 hover:bg-gray-50 transition-colors">
                   {/* Item Name */}
                   <div>
                     <div className="font-bold text-black">{item.name}</div>
@@ -383,21 +350,6 @@ export default function MenuPage() {
                     <p className="font-normal text-black text-sm leading-tight line-clamp-2">
                       {item.description}
                     </p>
-                  </div>
-
-                  {/* Prep Time */}
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4 text-gray-600" />
-                      <span className="font-normal text-black">{item.preparationTime} min</span>
-                    </div>
-                  </div>
-
-                  {/* Category */}
-                  <div>
-                    <span className="px-2 py-1 bg-gray-100 border border-black text-black font-bold text-xs">
-                      {item.category}
-                    </span>
                   </div>
 
                   {/* Availability Toggle */}

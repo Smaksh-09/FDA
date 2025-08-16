@@ -212,20 +212,7 @@ export default function SmoothReelScroller({
         </div>
       </div>
 
-      {/* Visual indicators */}
-      {isMobile && (
-        <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-20 pointer-events-none">
-          <div className="bg-black bg-opacity-60 border border-white px-2 py-1 text-white text-xs font-bold">
-            Swipe ↑ for next {currentIndex > 0 && "| ↓ for prev"}
-          </div>
-        </div>
-      )}
 
-      {!isMobile && (
-        <div className="absolute top-4 left-4 bg-black bg-opacity-60 border border-white px-3 py-2 text-white text-xs font-bold z-10 pointer-events-none">
-          Scroll {currentIndex > 0 && "↑ "}↓ for more reels
-        </div>
-      )}
     </div>
   )
 }

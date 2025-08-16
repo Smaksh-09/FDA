@@ -16,9 +16,10 @@ export default function OrderManagement({ orders, onOrderStatusChange }: OrderMa
     return `₹${amount.toLocaleString('en-IN')}`
   }
 
-  const formatTime = (date: Date): string => {
+  const formatTime = (date: Date | string): string => {
     const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
+    const orderDate = date instanceof Date ? date : new Date(date)
+    const diffMs = now.getTime() - orderDate.getTime()
     const diffMins = Math.floor(diffMs / (1000 * 60))
     
     if (diffMins < 1) return 'Just now'
@@ -120,7 +121,9 @@ export default function OrderManagement({ orders, onOrderStatusChange }: OrderMa
       return aPriority - bPriority
     }
     
-    return a.placedAt.getTime() - b.placedAt.getTime()
+    const aDate = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt)
+    const bDate = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt)
+    return aDate.getTime() - bDate.getTime()
   })
 
   return (
@@ -159,7 +162,7 @@ export default function OrderManagement({ orders, onOrderStatusChange }: OrderMa
                     </span>
                     <div className="flex items-center gap-1 text-gray-600">
                       <Clock className="w-4 h-4" />
-                      <span className="font-normal text-sm">{formatTime(order.placedAt)}</span>
+                      <span className="font-normal text-sm">{formatTime(order.createdAt)}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -171,25 +174,25 @@ export default function OrderManagement({ orders, onOrderStatusChange }: OrderMa
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                   <div>
                     <span className="font-bold text-black text-sm">CUSTOMER:</span>
-                    <p className="font-normal text-black">{order.customerName}</p>
+                    <p className="font-normal text-black">{order.user?.name || 'Unknown Customer'}</p>
                     <div className="flex items-center gap-1 text-gray-600 mt-1">
                       <Phone className="w-3 h-3" />
-                      <span className="font-normal text-xs">{order.customerPhone}</span>
+                      <span className="font-normal text-xs">{order.user?.email || 'No contact info'}</span>
                     </div>
                   </div>
                   
                   <div>
                     <span className="font-bold text-black text-sm">PAYMENT:</span>
                     <div className="flex items-center gap-1 mt-1">
-                      {getPaymentIcon(order.paymentMethod)}
-                      <span className="font-normal text-black">{order.paymentMethod}</span>
-                      <span className="font-bold text-black ml-2">{formatCurrency(order.totalAmount)}</span>
+                      {getPaymentIcon(order.paymentMethod || 'CARD')}
+                      <span className="font-normal text-black">{order.paymentMethod || 'Unknown'}</span>
+                      <span className="font-bold text-black ml-2">{formatCurrency(order.totalPrice)}</span>
                     </div>
                   </div>
                   
                   <div>
                     <span className="font-bold text-black text-sm">EST. TIME:</span>
-                    <p className="font-bold text-black">{order.estimatedTime} mins</p>
+                    <p className="font-bold text-black">{order.estimatedTime || 15} mins</p>
                   </div>
                 </div>
 
@@ -197,13 +200,13 @@ export default function OrderManagement({ orders, onOrderStatusChange }: OrderMa
                 <div className="mb-3">
                   <span className="font-bold text-black text-sm">ITEMS:</span>
                   <div className="mt-1 space-y-1">
-                    {order.items.map((item, index) => (
+                    {(order.items || []).map((item, index) => (
                       <div key={index} className="flex justify-between items-center">
                         <span className="font-normal text-black">
-                          {item.quantity}x {item.name}
+                          {item.quantity}x {item.foodItem?.name || item.name || 'Unknown Item'}
                         </span>
                         <span className="font-bold text-black">
-                          {formatCurrency(item.price * item.quantity)}
+                          {formatCurrency((item.priceAtTimeOfOrder || item.price || 0) * item.quantity)}
                         </span>
                       </div>
                     ))}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, Pause, Volume2, VolumeX, Heart, MessageCircle, Share, Menu } from 'lucide-react'
+import { Play, Volume2, VolumeX, Menu } from 'lucide-react'
 import { Reel } from '../../reelBytes/types'
 
 interface ReelVideoPlayerProps {
@@ -23,7 +23,6 @@ export default function ReelVideoPlayer({
 }: ReelVideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
-  const [isLiked, setIsLiked] = useState(false)
   const [showControls, setShowControls] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -78,24 +77,11 @@ export default function ReelVideoPlayer({
     }
   }
 
-  const toggleLike = () => {
-    setIsLiked(!isLiked)
-  }
 
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M'
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K'
-    }
-    return num.toString()
-  }
 
   return (
     <div 
-      className={`relative h-full w-full bg-black border-2 border-black group cursor-pointer ${
-        isMobile ? 'min-h-screen' : ''
-      }`}
+      className="relative h-full w-full bg-black border-2 border-black group cursor-pointer"
       onMouseEnter={() => !isMobile && setShowControls(true)}
       onMouseLeave={() => !isMobile && setShowControls(false)}
       onClick={(e) => {
@@ -207,60 +193,7 @@ export default function ReelVideoPlayer({
         </div>
       </div>
 
-      {/* Side Action Buttons */}
-      <div className={`absolute ${isMobile ? 'right-4 bottom-32' : 'right-4 bottom-20'} flex flex-col gap-4`}>
-        {/* Like Button */}
-        <div className="text-center">
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              toggleLike()
-            }}
-            className={`p-3 border-2 border-white transition-all ${
-              isLiked 
-                ? 'bg-[#39FF14] text-black' 
-                : 'bg-black bg-opacity-60 text-white hover:bg-opacity-80'
-            }`}
-          >
-            <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
-          </button>
-          <p className="text-white text-sm font-bold mt-1 bg-black bg-opacity-60 px-2 py-1">
-            {formatNumber(isLiked ? reel.likes + 1 : reel.likes)}
-          </p>
-        </div>
 
-        {/* Comment Button */}
-        <div className="text-center">
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              onCommentClick?.()
-            }}
-            className="p-3 bg-black bg-opacity-60 border-2 border-white text-white hover:bg-opacity-80 transition-all"
-          >
-            <MessageCircle className="w-6 h-6" />
-          </button>
-          <p className="text-white text-sm font-bold mt-1 bg-black bg-opacity-60 px-2 py-1">
-            {reel.comments.length}
-          </p>
-        </div>
-
-        {/* Share Button */}
-        <div className="text-center">
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              // TODO: Share functionality
-            }}
-            className="p-3 bg-black bg-opacity-60 border-2 border-white text-white hover:bg-opacity-80 transition-all"
-          >
-            <Share className="w-6 h-6" />
-          </button>
-          <p className="text-white text-sm font-bold mt-1 bg-black bg-opacity-60 px-2 py-1">
-            {formatNumber(reel.views)}
-          </p>
-        </div>
-      </div>
     </div>
   )
 }
