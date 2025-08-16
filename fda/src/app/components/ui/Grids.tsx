@@ -13,17 +13,6 @@ interface GridItemProps {
 export default function GridItem({ children, mousePosition, className = '', isPermanentActive = false }: GridItemProps) {
   const itemRef = useRef<HTMLDivElement>(null)
   const [isActive, setIsActive] = useState(false)
-  const [itemCenter, setItemCenter] = useState({ x: 0, y: 0 })
-
-  useEffect(() => {
-    if (itemRef.current) {
-      const rect = itemRef.current.getBoundingClientRect()
-      setItemCenter({
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      })
-    }
-  }, [])
 
   useEffect(() => {
     if (isPermanentActive) {
@@ -31,13 +20,21 @@ export default function GridItem({ children, mousePosition, className = '', isPe
       return
     }
 
-    const distance = Math.sqrt(
-      Math.pow(mousePosition.x - itemCenter.x, 2) + 
-      Math.pow(mousePosition.y - itemCenter.y, 2)
-    )
-    
-    setIsActive(distance < 150)
-  }, [mousePosition, itemCenter, isPermanentActive])
+    if (itemRef.current) {
+      const rect = itemRef.current.getBoundingClientRect()
+      const currentItemCenter = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      }
+
+      const distance = Math.sqrt(
+        Math.pow(mousePosition.x - currentItemCenter.x, 2) + 
+        Math.pow(mousePosition.y - currentItemCenter.y, 2)
+      )
+      
+      setIsActive(distance < 150)
+    }
+  }, [mousePosition, isPermanentActive])
 
   return (
     <motion.div

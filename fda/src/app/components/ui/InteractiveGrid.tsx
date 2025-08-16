@@ -6,6 +6,7 @@ import GridItem from './Grids'
 import ExampleButton from './ExampleButton'
 import ExampleCard from './ExampleCard'
 import ExampleVideoPlayer from './VideoPlayer'
+import TypingText from './TypingText'
 import { ShoppingCart, Star, Clock, MapPin, User, Heart, Search, Menu, Building2 } from 'lucide-react'
 import { useUserStore } from '@/store/useUserStore'
 
@@ -97,9 +98,12 @@ export default function InteractiveGrid() {
               <h1 className="text-4xl md:text-6xl lg:text-8xl font-black text-black text-center leading-none">
                 ReelBites.
               </h1>
-              <p className="text-2xl md:text-3xl lg:text-4xl font-bold text-black text-center mt-4">
-                Welcome back, {user.name.split(' ')[0]}!
-              </p>
+              <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-black text-center mt-4">
+                <TypingText 
+                  text={`Welcome back, ${user.name.split(' ')[0]}!`}
+                  speed={80}
+                />
+              </div>
             </div>
           ), 
           span: 'col-span-4' 
@@ -173,7 +177,7 @@ export default function InteractiveGrid() {
     <div className="relative min-h-screen p-4">
       {/* Spotlight Effect */}
       <motion.div
-        className="fixed pointer-events-none z-10 w-80 h-80 rounded-full"
+        className="absolute pointer-events-none z-10 w-80 h-80 rounded-full"
         style={{
           background: `radial-gradient(circle, rgba(57, 255, 20, 0.1) 0%, rgba(57, 255, 20, 0.05) 50%, transparent 70%)`,
           left: mousePosition.x - 160,
