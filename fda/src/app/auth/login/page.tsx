@@ -234,7 +234,12 @@ function LoginForm() {
                   : 'bg-[#39FF14] text-black hover:neobrutalist-shadow-active active:translate-x-1 active:translate-y-1'
               }`}
             >
-              {isLoading ? 'Signing In...' : 'Sign In'}
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 rounded-full border-4 border-black border-t-transparent animate-spin inline-block mr-2"></div>
+                  Signing In
+                </>
+              ) : 'Sign In'}
             </button>
           </form>
 
@@ -302,17 +307,11 @@ function LoginPageFallback() {
             Welcome Back
           </h2>
           
-          <div className="space-y-4">
-            {/* Loading skeleton */}
-            <div className="animate-pulse">
-              <div className="h-4 bg-gray-200 border border-black mb-2 w-24"></div>
-              <div className="h-12 bg-gray-200 border-2 border-black w-full"></div>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="w-12 h-12 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600 font-normal">Loading</p>
             </div>
-            <div className="animate-pulse">
-              <div className="h-4 bg-gray-200 border border-black mb-2 w-24"></div>
-              <div className="h-12 bg-gray-200 border-2 border-black w-full"></div>
-            </div>
-            <div className="h-12 bg-gray-200 border-2 border-black w-full animate-pulse"></div>
           </div>
         </div>
       </div>

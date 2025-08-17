@@ -280,7 +280,12 @@ export default function RegisterPage() {
                   : 'bg-[#39FF14] text-black hover:neobrutalist-shadow-active active:translate-x-1 active:translate-y-1'
               }`}
             >
-              {isLoading ? 'Creating Account...' : 'Create Account'}
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 rounded-full border-4 border-black border-t-transparent animate-spin inline-block mr-2"></div>
+                  Creating Account
+                </>
+              ) : 'Create Account'}
             </button>
           </form>
 

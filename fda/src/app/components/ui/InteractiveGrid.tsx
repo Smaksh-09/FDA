@@ -51,7 +51,10 @@ export default function InteractiveGrid() {
           component: (
             <div className="flex flex-col items-center justify-center h-full bg-[#F5F5F5] p-8">
               <h1 className="text-4xl md:text-6xl lg:text-8xl font-black text-black text-center leading-none">
-                ReelBites.
+                <TypingText 
+                  text="ReelBites."
+                  speed={120}
+                />
               </h1>
               <p className="text-2xl md:text-3xl lg:text-4xl font-bold text-black text-center mt-4">
                 Raw. Fast. Food.
@@ -64,7 +67,7 @@ export default function InteractiveGrid() {
         
         // Row 4 - Loading placeholder
     { component: <ExampleCard title="Burger" price="₹89.99" />, span: 'col-span-2' },
-        { component: <div className="flex items-center justify-center h-full border-2 border-black bg-gray-300 animate-pulse"><div className="w-20 h-8 bg-gray-400"></div></div>, span: 'col-span-2' },
+        { component: <div className="flex items-center justify-center h-full border-2 border-black bg-white"><div className="w-8 h-8 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin"></div></div>, span: 'col-span-2' },
     { component: <ExampleCard title="Sushi" price="₹15.99" />, span: 'col-span-2' },
         
         // Row 5
@@ -96,7 +99,10 @@ export default function InteractiveGrid() {
           component: (
             <div className="flex flex-col items-center justify-center h-full bg-[#F5F5F5] p-8">
               <h1 className="text-4xl md:text-6xl lg:text-8xl font-black text-black text-center leading-none">
-                ReelBites.
+                <TypingText 
+                  text="ReelBites."
+                  speed={120}
+                />
               </h1>
               <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-black text-center mt-4">
                 <TypingText 
@@ -146,7 +152,10 @@ export default function InteractiveGrid() {
           component: (
             <div className="flex flex-col items-center justify-center h-full bg-[#F5F5F5] p-8">
               <h1 className="text-4xl md:text-6xl lg:text-8xl font-black text-black text-center leading-none">
-                ReelBites.
+                <TypingText 
+                  text="ReelBites."
+                  speed={120}
+                />
               </h1>
               <p className="text-2xl md:text-3xl lg:text-4xl font-bold text-black text-center mt-4">
                 Raw. Fast. Food.

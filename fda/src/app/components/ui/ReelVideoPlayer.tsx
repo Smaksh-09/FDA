@@ -118,7 +118,8 @@ export default function ReelVideoPlayer({
             <div className="w-24 h-24 mx-auto mb-4 bg-gray-800 border-2 border-gray-600 flex items-center justify-center">
               <Play className="w-8 h-8 text-gray-400" />
             </div>
-            <p className="text-gray-400 font-bold">Video Loading...</p>
+            <div className="w-8 h-8 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin mx-auto mb-2"></div>
+            <p className="text-gray-400 font-bold">Video Loading</p>
           </div>
         </div>
       </video>

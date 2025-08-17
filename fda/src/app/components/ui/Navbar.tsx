@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { ChevronDown, User, LogOut, Building2, Play, ShoppingBag } from 'lucide-react'
 import { useUserStore } from '@/store/useUserStore'
+import TypingText from './TypingText'
 
 export default function Navbar() {
   const { user, isLoading, setUser, setLoading, logout } = useUserStore()
@@ -58,16 +60,28 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo - positioned close to top border */}
           <div className="flex-shrink-0 mt-1">
-            <Link href="/" className="font-bold text-white text-xl sm:text-2xl font-inter hover:text-[#39FF14] transition-colors">
-              ReelBites
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <Image 
+                src="/ReelBites.png" 
+                alt="ReelBites Logo" 
+                width={40} 
+                height={40}
+                className="w-8 h-8 sm:w-10 sm:h-10"
+              />
+              <div className="font-bold text-white text-xl sm:text-2xl font-inter">
+                <TypingText 
+                  text="ReelBites"
+                  speed={150}
+                />
+              </div>
             </Link>
           </div>
 
           {/* Right side - Conditional rendering */}
           <div className="flex items-center gap-4">
             {isLoading ? (
-              // Loading state
-              <div className="w-20 h-8 bg-gray-700 border-2 border-gray-600 animate-pulse"></div>
+              // Loading state - Green circle spinner
+              <div className="w-8 h-8 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin"></div>
             ) : user ? (
               // Logged in state
               <>

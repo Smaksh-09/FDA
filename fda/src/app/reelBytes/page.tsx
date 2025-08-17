@@ -184,10 +184,11 @@ export default function ReelBytesPage() {
                   onOrderClick={() => setIsOrderModalOpen(true)}
                 />
               ) : (
-                <div className="h-full flex items-center justify-center text-black bg-gray-100">
+                <div className="h-full flex items-center justify-center bg-gray-100">
                   <div className="text-center">
-                    <div className="font-extrabold text-2xl mb-2">LOADING REELS...</div>
-                    <div>Finding the best content for you</div>
+                    <div className="w-16 h-16 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin mx-auto mb-4"></div>
+                    <div className="font-extrabold text-2xl mb-2 text-black">Loading Reels</div>
+                    <div className="text-gray-600">Finding the best content for you</div>
                   </div>
                 </div>
               )}
@@ -218,8 +219,8 @@ export default function ReelBytesPage() {
                       onOrderClick={() => setIsOrderModalOpen(true)}
                     />
                   ) : (
-                    <div className="w-full h-full bg-black flex items-center justify-center text-white border-2 border-black">
-                      Loading...
+                    <div className="w-full h-full bg-black flex items-center justify-center border-2 border-black">
+                      <div className="w-12 h-12 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin"></div>
                     </div>
                   )}
                 </div>
@@ -231,7 +232,9 @@ export default function ReelBytesPage() {
               {currentReel ? (
                 <ReelInspector reel={currentReel} onOrderClick={() => setIsOrderModalOpen(true)} />
               ) : (
-                <div className="h-full bg-[#F5F5F5] border-2 border-black flex items-center justify-center">Loading...</div>
+                <div className="h-full bg-[#F5F5F5] border-2 border-black flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full border-4 border-[#39FF14] border-t-transparent animate-spin"></div>
+                </div>
               )}
             </aside>
           </>

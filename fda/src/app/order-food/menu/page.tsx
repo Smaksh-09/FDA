@@ -163,8 +163,8 @@ function RestaurantMenuContent() {
     const itemDesc = item.description.toLowerCase()
     
     // Check for specific food types first
-    if (itemName.includes('pizza') || itemName.includes('biryani') || itemName.includes('rice') || item.price > 400) {
-      category = 'BIRYANI & RICE'
+    if (itemName.includes('pizza') || itemName.includes('Roasted') || itemName.includes('Chicken') ||itemName.includes('croissant') || itemName.includes('Pancakes') || item.price > 400) {
+      category = 'APPETIZERS'
     } else if (itemName.includes('burger') || itemName.includes('sandwich') || itemName.includes('wrap') || (item.price >= 150 && item.price <= 400)) {
       category = 'BURGERS & MAINS'
     } else if (itemName.includes('fries') || itemName.includes('starter') || itemName.includes('appetizer') || itemName.includes('wing') || (item.price >= 80 && item.price < 150)) {
