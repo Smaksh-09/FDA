@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Star, Clock, MapPin, Heart, MessageCircle, Send, ShoppingCart, Plus, Minus } from 'lucide-react'
 import { Reel, Comment } from '../../reelBytes/types'
 
@@ -10,6 +11,7 @@ interface ReelInspectorProps {
 }
 
 export default function ReelInspector({ reel, onOrderClick }: ReelInspectorProps) {
+  const router = useRouter()
   const [quantity, setQuantity] = useState(1)
   const [newComment, setNewComment] = useState('')
   const [showAllComments, setShowAllComments] = useState(false)
@@ -29,6 +31,10 @@ export default function ReelInspector({ reel, onOrderClick }: ReelInspectorProps
 
   const handleOrderNow = () => {
     onOrderClick?.(reel)
+  }
+
+  const handleViewRestaurant = () => {
+    router.push(`/order-food/menu?id=${reel.restaurant.id}`)
   }
 
   const handleCommentSubmit = (e: React.FormEvent) => {
@@ -75,7 +81,10 @@ export default function ReelInspector({ reel, onOrderClick }: ReelInspectorProps
               </div>
             </div>
           </div>
-          <button className="w-full py-2 px-4 bg-white border-2 border-black text-black font-bold hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={handleViewRestaurant}
+            className="w-full py-2 px-4 bg-white border-2 border-black text-black font-bold hover:bg-gray-50 transition-colors"
+          >
             View Restaurant
           </button>
         </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { X, Star, Clock, ShoppingCart, Plus, Minus, MapPin, Heart } from 'lucide-react'
 import { Reel } from '../../reelBytes/types'
 
@@ -11,6 +12,7 @@ interface MobileMenuDrawerProps {
 }
 
 export default function MobileMenuDrawer({ reel, isOpen, onClose }: MobileMenuDrawerProps) {
+  const router = useRouter()
   const [quantity, setQuantity] = useState(1)
 
 const formatPrice = (price: number): string => `₹${price.toFixed(2)}`
@@ -29,6 +31,11 @@ const formatPrice = (price: number): string => `₹${price.toFixed(2)}`
   const handleAddToCart = () => {
     // TODO: Implement add to cart functionality
     alert(`Added ${quantity}x ${reel.foodItem.name} to cart`)
+    onClose()
+  }
+
+  const handleViewMenu = () => {
+    router.push(`/order-food/menu?id=${reel.restaurant.id}`)
     onClose()
   }
 
@@ -82,7 +89,10 @@ const formatPrice = (price: number): string => `₹${price.toFixed(2)}`
             
             {/* Restaurant Actions */}
             <div className="grid grid-cols-2 gap-2">
-              <button className="py-2 px-3 bg-white border-2 border-black text-black font-bold text-sm hover:bg-gray-50 transition-colors">
+              <button 
+                onClick={handleViewMenu}
+                className="py-2 px-3 bg-white border-2 border-black text-black font-bold text-sm hover:bg-gray-50 transition-colors"
+              >
                 View Menu
               </button>
               <button className="py-2 px-3 bg-white border-2 border-black text-black font-bold text-sm hover:bg-gray-50 transition-colors flex items-center justify-center gap-1">
