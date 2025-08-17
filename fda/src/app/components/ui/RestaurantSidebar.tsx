@@ -42,7 +42,6 @@ export default function RestaurantSidebar({ restaurant, currentPage = 'dashboard
       name: 'Orders',
       icon: ShoppingBag,
       href: '/restaurant/orders',
-      badge: '5'
     },
     {
       id: 'menu',
@@ -136,11 +135,7 @@ export default function RestaurantSidebar({ restaurant, currentPage = 'dashboard
                 {!isCollapsed && (
                   <>
                     <span className="flex-1">{item.name}</span>
-                    {item.badge && (
-                      <span className="bg-black text-[#39FF14] px-2 py-1 text-xs font-bold">
-                        {item.badge}
-                      </span>
-                    )}
+                    
                   </>
                 )}
               </Link>
